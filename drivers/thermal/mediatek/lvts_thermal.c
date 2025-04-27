@@ -1617,6 +1617,53 @@ static const u32 mt7988_init_cmds[] = {
 	0xC10306B8
 };
 
+static const struct lvts_ctrl_data mt6785_lvts_data_ctrl[] = {
+	{
+		.lvts_sensor = {
+			{ .dt_id = MT6785_BIG_CPU0,
+			  .cal_offsets = { 4, 5, 6 } },
+			{ .dt_id = MT6785_BIG_CPU1,
+			  .cal_offsets = { 8, 9, 10 } },
+		},
+		VALID_SENSOR_MAP(1, 1, 0, 0),
+		.offset = 0x0,
+		.mode = LVTS_MSR_FILTERED_MODE,
+	},
+	{
+		.lvts_sensor = {
+			{ .dt_id = MT6785_LITTLE_CPU0,
+			  .cal_offsets = { 12, 13, 14 } },
+			{ .dt_id = MT6785_LITTLE_CPU1,
+			  .cal_offsets = { 16, 17, 18 } },
+			{ .dt_id = MT6785_LITTLE_CPU2,
+			  .cal_offsets = { 20, 21, 22 } }
+		},
+		VALID_SENSOR_MAP(1, 1, 1, 0),
+		.offset = 0x100,
+		.mode = LVTS_MSR_FILTERED_MODE,
+	},
+	{
+		.lvts_sensor = {
+			{ .dt_id = MT6785_GPU0,
+			  .cal_offsets = { 24, 25, 26 } },
+			{ .dt_id = MT6785_GPU1,
+			  .cal_offsets = { 28, 29, 30 } }
+		},
+		VALID_SENSOR_MAP(1, 1, 0, 0),
+		.offset = 0x200,
+		.mode = LVTS_MSR_FILTERED_MODE,
+	},
+	{
+		.lvts_sensor = {
+			{ .dt_id = MT6785_VPU,
+			  .cal_offsets = { 32, 33, 34 } }
+		},
+		VALID_SENSOR_MAP(1, 0, 0, 0),
+		.offset = 0x300,
+		.mode = LVTS_MSR_FILTERED_MODE,
+	}
+};
+
 /*
  * The MT8186 calibration data is stored as packed 3-byte little-endian
  * values using a weird layout that makes sense only when viewed as a 32-bit
@@ -2015,6 +2062,15 @@ static const struct lvts_platform_ops lvts_platform_ops_mt8196 = {
 	.lvts_temp_to_raw = lvts_temp_to_raw_mt8196,
 };
 
+static const struct lvts_data mt6785_lvts_data = {
+	.lvts_ctrl	= mt6785_lvts_data_ctrl,
+	.num_lvts_ctrl	= ARRAY_SIZE(mt6785_lvts_data_ctrl),
+	.temp_factor	= LVTS_COEFF_A_MT7988,
+	.temp_offset	= LVTS_COEFF_B_MT7988,
+	.gt_calib_bit_offset = 0,
+	.def_calibration = 19000,
+};
+
 static const struct lvts_data mt7987_lvts_ap_data = {
 	.lvts_ctrl	= mt7987_lvts_ap_data_ctrl,
 	.num_lvts_ctrl	= ARRAY_SIZE(mt7987_lvts_ap_data_ctrl),
@@ -2172,6 +2228,7 @@ static const struct lvts_data mt8196_lvts_ap_data = {
 };
 
 static const struct of_device_id lvts_of_match[] = {
+	{ .compatible = "mediatek,mt6785-lvts", .data = &mt6785_lvts_data },
 	{ .compatible = "mediatek,mt7987-lvts-ap", .data = &mt7987_lvts_ap_data },
 	{ .compatible = "mediatek,mt7988-lvts-ap", .data = &mt7988_lvts_ap_data },
 	{ .compatible = "mediatek,mt8186-lvts", .data = &mt8186_lvts_data },
