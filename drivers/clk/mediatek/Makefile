@@ -24,6 +24,15 @@ obj-$(CONFIG_COMMON_CLK_MT6779_VENCSYS) += clk-mt6779-venc.o
 obj-$(CONFIG_COMMON_CLK_MT6779_MFGCFG) += clk-mt6779-mfg.o
 obj-$(CONFIG_COMMON_CLK_MT6779_AUDSYS) += clk-mt6779-aud.o
 obj-$(CONFIG_COMMON_CLK_MT6785) += clk-mt6785-apmixed.o clk-mt6785-infra.o clk-mt6785-top.o
+obj-$(CONFIG_COMMON_CLK_MT6785_APU) += clk-mt6785-apu.o
+obj-$(CONFIG_COMMON_CLK_MT6785_AUD) += clk-mt6785-aud.o
+obj-$(CONFIG_COMMON_CLK_MT6785_CAM) += clk-mt6785-cam.o
+obj-$(CONFIG_COMMON_CLK_MT6785_IMG) += clk-mt6785-img.o
+obj-$(CONFIG_COMMON_CLK_MT6785_MCU) += clk-mt6785-mcu.o
+obj-$(CONFIG_COMMON_CLK_MT6785_MFG) += clk-mt6785-mfg.o
+obj-$(CONFIG_COMMON_CLK_MT6785_MM) += clk-mt6785-mm.o
+obj-$(CONFIG_COMMON_CLK_MT6785_VDEC) += clk-mt6785-vdec.o
+obj-$(CONFIG_COMMON_CLK_MT6785_VENC) += clk-mt6785-venc.o
 obj-$(CONFIG_COMMON_CLK_MT6795) += clk-mt6795-apmixedsys.o clk-mt6795-infracfg.o \
 				   clk-mt6795-pericfg.o clk-mt6795-topckgen.o
 obj-$(CONFIG_COMMON_CLK_MT6795_MFGCFG) += clk-mt6795-mfg.o
