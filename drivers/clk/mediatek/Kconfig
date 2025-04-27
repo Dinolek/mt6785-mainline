@@ -311,6 +311,69 @@ config COMMON_CLK_MT6785
 	help
 	  This driver supports MediaTek MT6785 basic clocks.
 
+config COMMON_CLK_MT6785_APU
+	tristate "Clock driver for MediaTek MT6785 AI Processing Unit"
+	depends on COMMON_CLK_MT6785
+	default COMMON_CLK_MT6785
+	help
+	  This driver supports MediaTek MT6785 AI Processing Unit clocks.
+
+config COMMON_CLK_MT6785_AUD
+	tristate "Clock driver for MediaTek MT6785 Audio"
+	depends on COMMON_CLK_MT6785
+	default COMMON_CLK_MT6785
+	help
+	  This driver supports MediaTek MT6785 Audio clocks.
+
+config COMMON_CLK_MT6785_CAM
+	tristate "Clock driver for MediaTek MT6785 Camera"
+	depends on COMMON_CLK_MT6785
+	default COMMON_CLK_MT6785
+	help
+	  This driver supports MediaTek MT6785 Camera clocks.
+
+config COMMON_CLK_MT6785_IMG
+	tristate "Clock driver for MediaTek MT6785 Image"
+	depends on COMMON_CLK_MT6785
+	default COMMON_CLK_MT6785
+	help
+	  This driver supports MediaTek MT6785 Image clocks.
+
+config COMMON_CLK_MT6785_MCU
+	tristate "Clock driver for MediaTek MT6785 MicroController Unit"
+	depends on COMMON_CLK_MT6785
+	default COMMON_CLK_MT6785
+	help
+	  This driver supports MediaTek MT6785 MicroController Unit clocks.
+
+config COMMON_CLK_MT6785_MFG
+	tristate "Clock driver for MediaTek MT6785 MFlexGraphics"
+	depends on COMMON_CLK_MT6785
+	default COMMON_CLK_MT6785
+	help
+	  This driver supports MediaTek MT6785 MFlexGraphics clocks.
+
+config COMMON_CLK_MT6785_MM
+	tristate "Clock driver for MediaTek MT6785 MultiMedia"
+	depends on COMMON_CLK_MT6785
+	default COMMON_CLK_MT6785
+	help
+	  This driver supports MediaTek MT6785 MultiMedia clocks.
+
+config COMMON_CLK_MT6785_VDEC
+	tristate "Clock driver for MediaTek MT6785 Video Decoders"
+	depends on COMMON_CLK_MT6785
+	default COMMON_CLK_MT6785
+	help
+	  This driver supports MediaTek MT6785 Video Decoders clocks.
+
+config COMMON_CLK_MT6785_VENC
+	tristate "Clock driver for MediaTek MT6785 Video Encoders"
+	depends on COMMON_CLK_MT6785
+	default COMMON_CLK_MT6785
+	help
+	  This driver supports MediaTek MT6785 Video Encoders clocks.
+
 config COMMON_CLK_MT6795
 	tristate "Clock driver for MediaTek MT6795"
 	depends on ARCH_MEDIATEK || COMPILE_TEST
