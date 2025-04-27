@@ -35,6 +35,7 @@ properties:
               - mediatek,mt6735-topckgen
               - mediatek,mt6765-topckgen
               - mediatek,mt6779-topckgen
+              - mediatek,mt6785-topckgen
               - mediatek,mt6795-topckgen
               - mediatek,mt7629-topckgen
               - mediatek,mt7981-topckgen
