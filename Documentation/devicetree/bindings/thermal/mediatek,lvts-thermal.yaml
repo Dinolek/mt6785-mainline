@@ -18,6 +18,7 @@ description: |
 properties:
   compatible:
     enum:
+      - mediatek,mt6785-lvts
       - mediatek,mt7987-lvts-ap
       - mediatek,mt7988-lvts-ap
       - mediatek,mt8186-lvts
@@ -93,6 +94,19 @@ allOf:
 
         nvmem-cell-names:
           minItems: 2
+
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: mediatek,mt6785-lvts
+    then:
+      properties:
+        nvmem-cells:
+          minItems: 3
+
+        nvmem-cell-names:
+          minItems: 3
 
 required:
   - compatible

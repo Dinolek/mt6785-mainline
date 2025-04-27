@@ -7,6 +7,15 @@
 #ifndef __MEDIATEK_LVTS_DT_H
 #define __MEDIATEK_LVTS_DT_H
 
+#define MT6785_BIG_CPU0	0
+#define MT6785_BIG_CPU1	1
+#define MT6785_LITTLE_CPU0	2
+#define MT6785_LITTLE_CPU1	3
+#define MT6785_LITTLE_CPU2	4
+#define MT6785_GPU0		5
+#define MT6785_GPU1		6
+#define MT6785_VPU		7
+
 #define MT7987_CPU		0
 #define MT7987_ETH2P5G		1
 
