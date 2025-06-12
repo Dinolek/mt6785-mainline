@@ -64,6 +64,10 @@ properties:
           - const: mediatek,mt6779
       - items:
           - enum:
+              - xiaomi,begonia
+          - const: mediatek,mt6785
+      - items:
+          - enum:
               - mediatek,mt6795-evb
               - sony,xperia-m5
           - const: mediatek,mt6795
