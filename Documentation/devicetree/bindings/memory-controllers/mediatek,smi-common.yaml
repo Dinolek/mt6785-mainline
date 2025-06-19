@@ -46,6 +46,11 @@ properties:
           - mediatek,mt8195-smi-sub-common
           - mediatek,mt8365-smi-common
 
+      - description: for mt6785
+        items:
+          - const: mediatek,mt6785-smi-common
+          - const: mediatek,mt6779-smi-common
+
       - description: for mt7623
         items:
           - const: mediatek,mt7623-smi-common
