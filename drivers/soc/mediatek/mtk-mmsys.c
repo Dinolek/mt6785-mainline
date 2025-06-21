@@ -14,6 +14,7 @@
 #include <linux/soc/mediatek/mtk-mmsys.h>
 
 #include "mtk-mmsys.h"
+#include "mt6785-mmsys.h"
 #include "mt8167-mmsys.h"
 #include "mt8173-mmsys.h"
 #include "mt8183-mmsys.h"
@@ -39,6 +40,14 @@ static const struct mtk_mmsys_driver_data mt2712_mmsys_driver_data = {
 
 static const struct mtk_mmsys_driver_data mt6779_mmsys_driver_data = {
 	.clk_driver = "clk-mt6779-mm",
+};
+
+static const struct mtk_mmsys_driver_data mt6785_mmsys_driver_data = {
+	.clk_driver = "clk-mt6785-mm",
+	.routes = mmsys_mt6785_routing_table,
+	.num_routes = ARRAY_SIZE(mmsys_mt6785_routing_table),
+	.sw0_rst_offset = MT8183_MMSYS_SW0_RST_B,
+	.num_resets = 64,
 };
 
 static const struct mtk_mmsys_driver_data mt6795_mmsys_driver_data = {
@@ -459,6 +468,7 @@ static const struct of_device_id of_match_mtk_mmsys[] = {
 	{ .compatible = "mediatek,mt2701-mmsys", .data = &mt2701_mmsys_driver_data },
 	{ .compatible = "mediatek,mt2712-mmsys", .data = &mt2712_mmsys_driver_data },
 	{ .compatible = "mediatek,mt6779-mmsys", .data = &mt6779_mmsys_driver_data },
+	{ .compatible = "mediatek,mt6785-mmsys", .data = &mt6785_mmsys_driver_data },
 	{ .compatible = "mediatek,mt6795-mmsys", .data = &mt6795_mmsys_driver_data },
 	{ .compatible = "mediatek,mt6797-mmsys", .data = &mt6797_mmsys_driver_data },
 	{ .compatible = "mediatek,mt8167-mmsys", .data = &mt8167_mmsys_driver_data },
