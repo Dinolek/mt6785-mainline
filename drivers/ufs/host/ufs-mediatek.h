@@ -172,6 +172,23 @@ struct ufs_mtk_mcq_intr_info {
 	u8 qid;
 };
 
+/**
+ * enum ufs_mtk_ref_clk_ctrl_mode - Reference clock control mode
+ *
+ * @REF_CLK_CTRL_SW_MODE: Use software to control
+ * @REF_CLK_CTRL_HALF_HW_MODE: Use register to control, but cannot turn off
+ * @REF_CLK_CTRL_HW_MODE: Use register to control
+ */
+enum ufs_mtk_ref_clk_ctrl_mode {
+	REF_CLK_CTRL_SW_MODE,
+	REF_CLK_CTRL_HALF_HW_MODE,
+	REF_CLK_CTRL_HW_MODE,
+};
+
+struct ufs_mtk_drv_data {
+	enum ufs_mtk_ref_clk_ctrl_mode ref_clk_ctrl_mode;
+};
+
 struct ufs_mtk_host {
 	struct phy *mphy;
 	struct regulator *reg_va09;
@@ -183,6 +200,7 @@ struct ufs_mtk_host {
 	struct ufs_mtk_crypt_cfg *crypt;
 	struct ufs_mtk_clk mclk;
 	struct ufs_mtk_hw_ver hw_ver;
+	const struct ufs_mtk_drv_data *drv_data;
 	enum ufs_mtk_host_caps caps;
 	bool mphy_powered_on;
 	bool unipro_lpm;

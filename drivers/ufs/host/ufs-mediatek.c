@@ -48,9 +48,13 @@ static const struct ufs_dev_quirk ufs_mtk_dev_fixups[] = {
 	{}
 };
 
+static const struct ufs_mtk_drv_data ufs_mtk_mt8183_drv_data = {
+	.ref_clk_ctrl_mode = REF_CLK_CTRL_HW_MODE,
+};
+
 static const struct of_device_id ufs_mtk_of_match[] = {
-	{ .compatible = "mediatek,mt8183-ufshci" },
-	{ .compatible = "mediatek,mt8195-ufshci" },
+	{ .compatible = "mediatek,mt8183-ufshci", .data = &ufs_mtk_mt8183_drv_data },
+	{ .compatible = "mediatek,mt8195-ufshci", .data = &ufs_mtk_mt8183_drv_data },
 	{},
 };
 MODULE_DEVICE_TABLE(of, ufs_mtk_of_match);
@@ -348,6 +352,16 @@ static int ufs_mtk_setup_ref_clk(struct ufs_hba *hba, bool on)
 		return 0;
 
 	ufs_mtk_ref_clk_notify(on, PRE_CHANGE, res);
+
+	switch (host->drv_data->ref_clk_ctrl_mode) {
+	case REF_CLK_CTRL_SW_MODE:
+		goto out;
+	case REF_CLK_CTRL_HALF_HW_MODE:
+		ufshcd_writel(hba, REFCLK_RELEASE, REG_UFS_REFCLK_CTRL);
+		goto out;
+	default:
+		break;
+	}
 
 	if (on) {
 		ufshcd_writel(hba, REFCLK_REQUEST, REG_UFS_REFCLK_CTRL);
@@ -1215,7 +1229,6 @@ failed:
  */
 static int ufs_mtk_init(struct ufs_hba *hba)
 {
-	const struct of_device_id *id;
 	struct device *dev = hba->dev;
 	struct ufs_mtk_host *host;
 	struct Scsi_Host *shost = hba->host;
@@ -1232,8 +1245,8 @@ static int ufs_mtk_init(struct ufs_hba *hba)
 	host->hba = hba;
 	ufshcd_set_variant(hba, host);
 
-	id = of_match_device(ufs_mtk_of_match, dev);
-	if (!id) {
+	host->drv_data = device_get_match_data(hba->dev);
+	if (!host->drv_data) {
 		err = -EINVAL;
 		goto out;
 	}
