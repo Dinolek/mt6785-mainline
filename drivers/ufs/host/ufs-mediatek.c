@@ -48,11 +48,16 @@ static const struct ufs_dev_quirk ufs_mtk_dev_fixups[] = {
 	{}
 };
 
+static const struct ufs_mtk_drv_data ufs_mtk_mt6785_drv_data = {
+	.ref_clk_ctrl_mode = REF_CLK_CTRL_HALF_HW_MODE,
+};
+
 static const struct ufs_mtk_drv_data ufs_mtk_mt8183_drv_data = {
 	.ref_clk_ctrl_mode = REF_CLK_CTRL_HW_MODE,
 };
 
 static const struct of_device_id ufs_mtk_of_match[] = {
+	{ .compatible = "mediatek,mt6785-ufshci", .data = &ufs_mtk_mt6785_drv_data },
 	{ .compatible = "mediatek,mt8183-ufshci", .data = &ufs_mtk_mt8183_drv_data },
 	{ .compatible = "mediatek,mt8195-ufshci", .data = &ufs_mtk_mt8183_drv_data },
 	{},
