@@ -40,6 +40,13 @@ static int ti_lmu_enable_hw(struct ti_lmu *lmu, enum ti_lmu_id id)
 					  LM3631_LCD_EN_MASK);
 	}
 
+	/* enable "Normal mode" in LCM_EN field */
+	if (id == LM36274) {
+		return regmap_update_bits(lmu->regmap, LM36274_REG_BIAS_CONFIG_1,
+					  LM36274_EN_LCM_MASK,
+					  LM36274_EN_LCM_NORMAL_MODE);
+	}
+
 	return 0;
 }
 
