@@ -20,10 +20,20 @@ allOf:
 
 properties:
   compatible:
-    items:
-      - enum:
-          - tianma,fhd-video
-      - const: novatek,nt36672a
+    oneOf:
+      - items:
+          - enum:
+              - xiaomi,beryllium-tianma-nt36672a
+              - xiaomi,begonia-csot-nt36672a
+              - xiaomi,begonia-tianma-nt36672a
+          - const: novatek,nt36672a
+
+      - description: Deprecated compatible string that only included manufacturer
+        items:
+          - const: tianma,fhd-video
+          - const: novatek,nt36672a
+        deprecated: true
+
     description: This indicates the panel manufacturer of the panel that is
       in turn using the NT36672A panel driver. This compatible string
       determines how the NT36672A panel driver is configured for the indicated
