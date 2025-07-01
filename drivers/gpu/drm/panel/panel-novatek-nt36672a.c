@@ -44,6 +44,11 @@ static unsigned long const nt36672a_regulator_enable_loads[] = {
 	100000
 };
 
+struct nt36672a_panel_reset_seq {
+	int gpio_value;
+	unsigned int sleep_msecs;
+};
+
 struct nt36672a_panel_desc {
 	const struct drm_display_mode *display_mode;
 	const char *panel_name;
@@ -62,6 +67,9 @@ struct nt36672a_panel_desc {
 
 	unsigned int num_off_cmds;
 	const struct nt36672a_panel_cmd *off_cmds;
+
+	unsigned int num_reset_seq;
+	const struct nt36672a_panel_reset_seq *reset_seq;
 };
 
 struct nt36672a_panel {
@@ -134,22 +142,19 @@ static int nt36672a_panel_unprepare(struct drm_panel *panel)
 
 static int nt36672a_panel_power_on(struct nt36672a_panel *pinfo)
 {
+	const struct nt36672a_panel_reset_seq *reset_seq;
 	int ret;
 
 	ret = regulator_bulk_enable(ARRAY_SIZE(pinfo->supplies), pinfo->supplies);
 	if (ret < 0)
 		return ret;
 
-	/*
-	 * As per downstream kernel, Reset sequence of Tianma FHD panel requires the panel to
-	 * be out of reset for 10ms, followed by being held in reset for 10ms. But for Android
-	 * AOSP, we needed to bump it upto 200ms otherwise we get white screen sometimes.
-	 * FIXME: Try to reduce this 200ms to a lesser value.
-	 */
-	gpiod_set_value(pinfo->reset_gpio, 1);
-	msleep(200);
-	gpiod_set_value(pinfo->reset_gpio, 0);
-	msleep(200);
+	reset_seq = pinfo->desc->reset_seq;
+
+	for (int i = 0; i < pinfo->desc->num_reset_seq; i++) {
+		gpiod_set_value(pinfo->reset_gpio, reset_seq[i].gpio_value);
+		msleep(reset_seq[i].sleep_msecs);
+	}
 
 	return 0;
 }
@@ -518,6 +523,17 @@ static const struct nt36672a_panel_cmd tianma_fhd_video_off_cmds[] = {
 	{ .data = {0xFF, 0x10} },
 };
 
+/*
+ * As per downstream kernel, Reset sequence of Tianma FHD panel requires the panel to
+ * be out of reset for 10ms, followed by being held in reset for 10ms. But for Android
+ * AOSP, we needed to bump it up to 200ms otherwise we get white screen sometimes.
+ * FIXME: Try to reduce this 200ms to a lesser value.
+ */
+static const struct nt36672a_panel_reset_seq tianma_fhd_video_reset_seq[] = {
+	{ .gpio_value = 1, .sleep_msecs = 200 },
+	{ .gpio_value = 0, .sleep_msecs = 200 },
+};
+
 static const struct drm_display_mode tianma_fhd_video_panel_default_mode = {
 	.clock		= 161331,
 
@@ -552,6 +568,8 @@ static const struct nt36672a_panel_desc tianma_fhd_video_panel_desc = {
 	.num_on_cmds_2 = ARRAY_SIZE(tianma_fhd_video_on_cmds_2),
 	.off_cmds = tianma_fhd_video_off_cmds,
 	.num_off_cmds = ARRAY_SIZE(tianma_fhd_video_off_cmds),
+	.reset_seq = tianma_fhd_video_reset_seq,
+	.num_reset_seq = ARRAY_SIZE(tianma_fhd_video_reset_seq),
 };
 
 static int nt36672a_panel_add(struct nt36672a_panel *pinfo)
@@ -629,16 +647,23 @@ static void nt36672a_panel_remove(struct mipi_dsi_device *dsi)
 	drm_panel_remove(&pinfo->base);
 }
 
-static const struct of_device_id tianma_fhd_video_of_match[] = {
-	{ .compatible = "tianma,fhd-video", .data = &tianma_fhd_video_panel_desc },
-	{ },
+static const struct of_device_id nt36672a_of_match[] = {
+	{
+		.compatible = "tianma,fhd-video",
+		.data = &tianma_fhd_video_panel_desc,
+	},
+	{
+		.compatible = "xiaomi,beryllium-tianma-nt36672a",
+		.data = &tianma_fhd_video_panel_desc,
+	},
+	{ /* sentinel */ }
 };
-MODULE_DEVICE_TABLE(of, tianma_fhd_video_of_match);
+MODULE_DEVICE_TABLE(of, nt36672a_of_match);
 
 static struct mipi_dsi_driver nt36672a_panel_driver = {
 	.driver = {
-		.name = "panel-tianma-nt36672a",
-		.of_match_table = tianma_fhd_video_of_match,
+		.name = "panel-novatek-nt36672a",
+		.of_match_table = nt36672a_of_match,
 	},
 	.probe = nt36672a_panel_probe,
 	.remove = nt36672a_panel_remove,
