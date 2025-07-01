@@ -606,6 +606,80 @@ static const struct nt36672a_panel_desc tianma_fhd_video_panel_desc = {
 	.num_reset_seq = ARRAY_SIZE(tianma_fhd_video_reset_seq),
 };
 
+static const struct nt36672a_panel_cmd csot_fhd_video_on_cmds_1[] = {
+	{ .data = {0xFF, 0x25} },
+	{ .data = {0xFB, 0x01} },
+	{ .data = {0x05, 0x04} },
+	{ .data = {0x13, 0x04} },
+	{ .data = {0xFF, 0x24} },
+	{ .data = {0xFB, 0x01} },
+	{ .data = {0xC3, 0x00} },
+	{ .data = {0xC4, 0x20} },
+	{ .data = {0xC2, 0x8E} },
+	{ .data = {0xFF, 0x10} },
+	{ .data = {0x35, 0x00} },
+	{ .data = {0x51, 0xFF} },
+	{ .data = {0x53, 0x24} },
+	{ .data = {0x55, 0x00} },
+};
+
+static const struct nt36672a_panel_cmd csot_fhd_video_on_cmds_2[] = {
+	{ .data = {0xFF, 0x24} },
+	{ .data = {0xFB, 0x01} },
+	{ .data = {0xC3, 0x01} },
+	{ .data = {0xC4, 0x05} },
+	{ .data = {0xFF, 0x10} },
+};
+
+static const struct nt36672a_panel_cmd csot_fhd_video_off_cmds[] = {
+	{ .data = {0xFF, 0x24} },
+	{ .data = {0xFB, 0x01} },
+	{ .data = {0xC3, 0x00} },
+	{ .data = {0xFF, 0x10} },
+};
+
+static const struct nt36672a_panel_reset_seq csot_fhd_video_reset_seq[] = {
+	{ .gpio_value = 1, .sleep_msecs = 5 },
+	{ .gpio_value = 0, .sleep_msecs = 5 },
+};
+
+static const struct drm_display_mode csot_fhd_video_panel_default_mode = {
+	.clock		= (1080 + 64 + 16 + 56) * (2340 + 14 + 2 + 10) * 60 / 1000,
+
+	.hdisplay	= 1080,
+	.hsync_start	= 1080 + 64,
+	.hsync_end	= 1080 + 64 + 16,
+	.htotal		= 1080 + 64 + 16 + 56,
+
+	.vdisplay	= 2340,
+	.vsync_start	= 2340 + 14,
+	.vsync_end	= 2340 + 14 + 2,
+	.vtotal		= 2340 + 14 + 2 + 10,
+
+	.type = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED,
+};
+
+static const struct nt36672a_panel_desc csot_fhd_video_panel_desc = {
+	.display_mode = &csot_fhd_video_panel_default_mode,
+
+	.width_mm = 69,
+	.height_mm = 150,
+
+	.mode_flags = MIPI_DSI_MODE_VIDEO |
+		      MIPI_DSI_MODE_VIDEO_SYNC_PULSE |
+		      MIPI_DSI_CLOCK_NON_CONTINUOUS,
+	.format = MIPI_DSI_FMT_RGB888,
+	.lanes = 4,
+	.on_cmds_1 = csot_fhd_video_on_cmds_1,
+	.num_on_cmds_1 = ARRAY_SIZE(csot_fhd_video_on_cmds_1),
+	.on_cmds_2 = csot_fhd_video_on_cmds_2,
+	.num_on_cmds_2 = ARRAY_SIZE(csot_fhd_video_on_cmds_2),
+	.off_cmds = csot_fhd_video_off_cmds,
+	.num_off_cmds = ARRAY_SIZE(csot_fhd_video_off_cmds),
+	.reset_seq = csot_fhd_video_reset_seq,
+	.num_reset_seq = ARRAY_SIZE(csot_fhd_video_reset_seq),
+};
+
 static int nt36672a_panel_add(struct nt36672a_panel *pinfo)
 {
 	struct device *dev = &pinfo->link->dev;
@@ -689,6 +763,10 @@ static const struct of_device_id tianma_fhd_video_of_match[] = {
 	{
 		.compatible = "xiaomi,beryllium-tianma-nt36672a",
 		.data = &tianma_fhd_video_panel_desc,
+	},
+	{
+		.compatible = "xiaomi,begonia-csot-nt36672a",
+		.data = &csot_fhd_video_panel_desc,
 	},
 	{ /* sentinel */ }
 };
