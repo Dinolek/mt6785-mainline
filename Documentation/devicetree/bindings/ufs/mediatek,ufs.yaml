@@ -12,10 +12,13 @@ maintainers:
 
 properties:
   compatible:
-    enum:
-      - mediatek,mt8183-ufshci
-      - mediatek,mt8192-ufshci
-      - mediatek,mt8195-ufshci
+    oneOf:
+      - const: mediatek,mt8183-ufshci
+      - const: mediatek,mt8195-ufshci
+      - items:
+          - enum:
+              - mediatek,mt8192-ufshci
+          - const: mediatek,mt8183-ufshci
 
   clocks:
     minItems: 1
@@ -36,6 +39,34 @@ properties:
   mediatek,ufs-disable-mcq:
     $ref: /schemas/types.yaml#/definitions/flag
     description: The mask to disable MCQ (Multi-Circular Queue) for UFS host.
+
+  mediatek,ufs-boost-crypt:
+    description: Enable boost for crypto engine.
+    type: boolean
+
+  mediatek,ufs-support-va09:
+    description: Enable VA09 power control support.
+    type: boolean
+
+  mediatek,ufs-disable-ah8:
+    description: Disable auto-hibernation (AH8).
+    type: boolean
+
+  mediatek,ufs-broken-vcc:
+    description: Indicates that VCC is broken and needs a workaround.
+    type: boolean
+
+  mediatek,ufs-pmc-via-fastauto:
+    description: Enable power mode change via FASTAUTO mode.
+    type: boolean
+
+  mediatek,ufs-tx-skew-fix:
+    description: Enable fix for TX skew issue.
+    type: boolean
+
+  mediatek,ufs-rtff-mtcmos:
+    description: Enable RTFF MTCMOS power control.
+    type: boolean
 
 required:
   - compatible
