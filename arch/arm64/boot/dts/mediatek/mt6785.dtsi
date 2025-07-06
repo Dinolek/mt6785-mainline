@@ -362,6 +362,7 @@
 				power-domain@MT6785_POWER_DOMAIN_CONN {
 					reg = <MT6785_POWER_DOMAIN_CONN>;
 					mediatek,infracfg = <&infracfg>;
+					mediatek,smi = <&smi_common>;
 					#power-domain-cells = <0>;
 				};
 
@@ -414,6 +415,7 @@
 					clock-names = "mm";
 					mediatek,infracfg-nao = <&infracfg_nao>;
 					mediatek,infracfg = <&infracfg>;
+					mediatek,smi = <&smi_common>;
 					#address-cells = <1>;
 					#size-cells = <0>;
 					#power-domain-cells = <1>;
@@ -423,6 +425,7 @@
 						clocks = <&topckgen CLK_TOP_CAM>;
 						clock-names = "cam";
 						mediatek,infracfg = <&infracfg>;
+						mediatek,smi = <&smi_common>;
 						#power-domain-cells = <0>;
 					};
 
@@ -431,6 +434,7 @@
 						clocks = <&topckgen CLK_TOP_IMG>;
 						clock-names = "isp";
 						mediatek,infracfg = <&infracfg>;
+						mediatek,smi = <&smi_common>;
 						#power-domain-cells = <0>;
 					};
 
@@ -439,6 +443,7 @@
 						clocks = <&topckgen CLK_TOP_VDEC>;
 						clock-names = "vdec";
 						mediatek,infracfg = <&infracfg>;
+						mediatek,smi = <&smi_common>;
 						#power-domain-cells = <0>;
 					};
 
@@ -447,6 +452,7 @@
 						clocks = <&topckgen CLK_TOP_VENC>;
 						clock-names = "venc";
 						mediatek,infracfg = <&infracfg>;
+						mediatek,smi = <&smi_common>;
 						#power-domain-cells = <0>;
 					};
 				};
@@ -515,6 +521,16 @@
 			reg = <0 0x14000000 0 0x1000>;
 			#clock-cells = <1>;
 			#reset-cells = <1>;
+		};
+
+		smi_common: smi@14019000 {
+			compatible = "mediatek,mt6785-smi-common",
+				     "mediatek,mt6779-smi-common";
+			reg = <0 0x14019000 0 0x1000>;
+			clocks = <&mmsys CLK_MM_SMI_COMMON>, <&mmsys CLK_MM_SMI_COMMON>,
+				 <&mmsys CLK_MM_GALS_COMM0>, <&mmsys CLK_MM_GALS_COMM1>;
+			clock-names = "apb", "smi", "gals0", "gals1";
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
 		};
 
 		imgsys: clock-controller@15020000 {
