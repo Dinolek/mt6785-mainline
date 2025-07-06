@@ -3,8 +3,10 @@
  * Copyright (c) 2025 Dinolek <git@dinolek.me>
  */
 
+#include <dt-bindings/clock/mediatek,mt6785-clk.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/reset/mediatek,mt6785-resets.h>
 
 / {
 	#address-cells = <2>;
@@ -284,12 +286,42 @@
 			};
 		};
 
+		mcusys: clock-controller@c53a000 {
+			compatible = "mediatek,mt6785-mcusys", "syscon";
+			reg = <0 0xc53a000 0 0x1000>;
+			#clock-cells = <1>;
+		};
+
 		sysirq: interrupt-controller@c53a650 {
 			compatible = "mediatek,mt6785-sysirq", "mediatek,mt6577-sysirq";
 			interrupt-controller;
 			#interrupt-cells = <3>;
 			interrupt-parent = <&gic>;
 			reg = <0 0x0c53a650 0 0x50>;
+		};
+
+		topckgen: clock-controller@10000000 {
+			compatible = "mediatek,mt6785-topckgen", "syscon";
+			reg = <0 0x10000000 0 0x1000>;
+			#clock-cells = <1>;
+		};
+
+		infracfg: clock-controller@10001000 {
+			compatible = "mediatek,mt6785-infracfg", "syscon";
+			reg = <0 0x10001000 0 0x1000>;
+			#clock-cells = <1>;
+			#reset-cells = <1>;
+		};
+
+		pericfg: syscon@10003000 {
+			compatible = "mediatek,mt6785-pericfg", "syscon";
+			reg = <0 0x10003000 0 0x1000>;
+		};
+
+		apmixedsys: clock-controller@1000c000 {
+			compatible = "mediatek,mt6785-apmixedsys", "syscon";
+			reg = <0 0x1000c000 0 0x1000>;
+			#clock-cells = <1>;
 		};
 
 		systimer: timer@10017000 {
@@ -299,12 +331,18 @@
 			clocks = <&clk13m>;
 		};
 
+		infracfg_nao: infracfg@1020e000 {
+			compatible = "mediatek,mt6785-infracfg-nao", "syscon";
+			reg = <0 0x1020e000 0 0x1000>;
+			#clock-cells = <1>;
+		};
+
 		uart0: serial@11002000 {
 			compatible = "mediatek,mt6785-uart", "mediatek,mt6577-uart";
 			reg = <0 0x11002000 0 0x1000>;
 			interrupts = <GIC_SPI 115 IRQ_TYPE_LEVEL_LOW>;
-			clocks = <&clk26m>;
-			clock-names = "baud";
+			clocks = <&clk26m>, <&infracfg CLK_INFRA_UART0>;
+			clock-names = "baud", "bus";
 			status = "disabled";
 		};
 
@@ -312,9 +350,69 @@
 			compatible = "mediatek,mt6785-uart", "mediatek,mt6577-uart";
 			reg = <0 0x11003000 0 0x1000>;
 			interrupts = <GIC_SPI 116 IRQ_TYPE_LEVEL_LOW>;
-			clocks = <&clk26m>;
-			clock-names = "baud";
+			clocks = <&clk26m>, <&infracfg CLK_INFRA_UART1>;
+			clock-names = "baud", "bus";
 			status = "disabled";
+		};
+
+		audsys: clock-controller@11210000 {
+			compatible = "mediatek,mt6785-audsys", "syscon";
+			reg = <0 0x11210000 0 0x2000>;
+			#clock-cells = <1>;
+		};
+
+		mfgcfg: clock-controller@13fbf000 {
+			compatible = "mediatek,mt6785-mfgcfg", "syscon";
+			reg = <0 0x13fbf000 0 0x1000>;
+			#clock-cells = <1>;
+		};
+
+		imgsys: clock-controller@15020000 {
+			compatible = "mediatek,mt6785-imgsys", "syscon";
+			reg = <0 0x15020000 0 0x1000>;
+			#clock-cells = <1>;
+		};
+
+		vdecsys: clock-controller@16000000 {
+			compatible = "mediatek,mt6785-vdecsys", "syscon";
+			reg = <0 0x16000000 0 0x1000>;
+			#clock-cells = <1>;
+		};
+
+		vencsys: clock-controller@17000000 {
+			compatible = "mediatek,mt6785-vencsys", "syscon";
+			reg = <0 0x17000000 0 0x1000>;
+			#clock-cells = <1>;
+		};
+
+		apu_conn: clock-controller@19000000 {
+			compatible = "mediatek,mt6785-apu_conn", "syscon";
+			reg = <0 0x19000000 0 0x1000>;
+			#clock-cells = <1>;
+		};
+
+		apu_vcore: clock-controller@19020000 {
+			compatible = "mediatek,mt6785-apu_vcore", "syscon";
+			reg = <0 0x19020000 0 0x1000>;
+			#clock-cells = <1>;
+		};
+
+		apu_core0: clock-controller@19180000 {
+			compatible = "mediatek,mt6785-apu_core0", "syscon";
+			reg = <0 0x19180000 0 0x1000>;
+			#clock-cells = <1>;
+		};
+
+		apu_core1: clock-controller@19280000 {
+			compatible = "mediatek,mt6785-apu_core1", "syscon";
+			reg = <0 0x19280000 0 0x1000>;
+			#clock-cells = <1>;
+		};
+
+		camsys: clock-controller@1a000000 {
+			compatible = "mediatek,mt6785-camsys", "syscon";
+			reg = <0 0x1a000000 0 0x1000>;
+			#clock-cells = <1>;
 		};
 	};
 };
