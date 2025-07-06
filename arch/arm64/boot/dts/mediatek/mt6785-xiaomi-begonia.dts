@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (c) 2025 Dinolek <git@dinolek.me>
+ */
+
+/dts-v1/;
+#include "mt6785.dtsi"
+
+/ {
+	model = "Xiaomi Redmi Note 8 Pro";
+	compatible = "xiaomi,begonia", "mediatek,mt6785";
+	chassis-type = "handset";
+};
