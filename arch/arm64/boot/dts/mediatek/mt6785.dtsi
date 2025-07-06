@@ -6,6 +6,7 @@
 #include <dt-bindings/clock/mediatek,mt6785-clk.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/pinctrl/mediatek,mt6785-pinfunc.h>
 #include <dt-bindings/reset/mediatek,mt6785-resets.h>
 
 / {
@@ -316,6 +317,27 @@
 		pericfg: syscon@10003000 {
 			compatible = "mediatek,mt6785-pericfg", "syscon";
 			reg = <0 0x10003000 0 0x1000>;
+		};
+
+		pio: pinctrl@10005000 {
+			compatible = "mediatek,mt6785-pinctrl";
+			reg = <0 0x10005000 0 0x1000>,
+			      <0 0x11c20000 0 0x1000>,
+			      <0 0x11d10000 0 0x1000>,
+			      <0 0x11e20000 0 0x1000>,
+			      <0 0x11e70000 0 0x1000>,
+			      <0 0x11ea0000 0 0x1000>,
+			      <0 0x11f20000 0 0x1000>,
+			      <0 0x11f30000 0 0x1000>,
+			      <0 0x1000b000 0 0x1000>;
+			reg-names = "base", "rm", "br", "bl", "lb", "rt", "lt", "tl",
+				    "eint";
+			interrupts = <GIC_SPI 204 IRQ_TYPE_LEVEL_HIGH>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&pio 0 0 203>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
 		};
 
 		apmixedsys: clock-controller@1000c000 {
