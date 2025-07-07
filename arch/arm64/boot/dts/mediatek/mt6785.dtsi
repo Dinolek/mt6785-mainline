@@ -602,6 +602,18 @@
 			status = "disabled";
 		};
 
+		pwm1: pwm@1100e000 {
+			compatible = "mediatek,mt6785-disp-pwm",
+				     "mediatek,mt8183-disp-pwm";
+			reg = <0 0x1100e000 0 0x1000>;
+			interrupts = <GIC_SPI 151 IRQ_TYPE_LEVEL_LOW>;
+			#pwm-cells = <2>;
+			clocks = <&topckgen CLK_TOP_DISP_PWM>,
+				 <&infracfg CLK_INFRA_DISP_PWM>;
+			clock-names = "main", "mm";
+			status = "disabled";
+		};
+
 		i2c3: i2c@1100f000 {
 			compatible = "mediatek,mt6785-i2c", "mediatek,mt8186-i2c";
 			reg = <0 0x1100f000 0 0x1000>, <0 0x11000300 0 0x80>;
