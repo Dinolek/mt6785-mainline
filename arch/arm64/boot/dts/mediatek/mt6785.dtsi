@@ -474,6 +474,18 @@
 			#clock-cells = <1>;
 		};
 
+		pwrap: pwrap@1000d000 {
+			compatible = "mediatek,mt6785-pwrap";
+			reg = <0 0x1000d000 0 0x1000>;
+			reg-names = "pwrap";
+			interrupts = <GIC_SPI 212 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&infracfg CLK_INFRA_PMIC_AP>,
+				 <&infracfg CLK_INFRA_PMIC_TMR>;
+			clock-names = "spi", "wrap";
+			resets = <&infracfg MT6785_INFRA_PMIC_WRAP_RST>;
+			reset-names = "pwrap";
+		};
+
 		systimer: timer@10017000 {
 			compatible = "mediatek,mt6785-timer", "mediatek,mt6765-timer";
 			reg = <0 0x10017000 0 0x1000>;
