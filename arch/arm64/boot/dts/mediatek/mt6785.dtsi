@@ -782,6 +782,39 @@
 			#clock-cells = <1>;
 		};
 
+		ufshci: ufshci@11270000 {
+			compatible = "mediatek,mt6785-ufshci";
+			reg = <0 0x11270000 0 0x2300>;
+			interrupts = <GIC_SPI 104 IRQ_TYPE_LEVEL_LOW>;
+			phys = <&ufsphy>;
+
+			clocks = <&infracfg CLK_INFRA_UFS>,
+				 <&infracfg CLK_INFRA_UFS_AXI>,
+				 <&infracfg CLK_INFRA_UFS_TICK>,
+				 <&infracfg CLK_INFRA_UNIPRO_MBIST>,
+				 <&infracfg CLK_INFRA_UNIPRO_TICK>;
+			clock-names = "ufs", "ufs-axi", "ufs-tick", "unipro-mbist",
+				      "unipro-tick";
+			freq-table-hz = <0 0>, <0 0>, <0 0>, <0 0>, <0 0>;
+
+			resets = <&infracfg MT6785_INFRA_UFS_HCI_RST>,
+				 <&infracfg MT6785_INFRA_UFS_UNIPRO_RST>,
+				 <&infracfg MT6785_INFRA_UFS_AES_RST>;
+			reset-names = "hci_rst", "unipro_rst", "crypto_rst";
+
+			status = "disabled";
+		};
+
+		ufsphy: ufs-phy@11fa0000 {
+			compatible = "mediatek,mt6785-ufsphy", "mediatek,mt8183-ufsphy";
+			reg = <0 0x11fa0000 0 0xc000>;
+			clocks = <&infracfg CLK_INFRA_UNIPRO_SYS>,
+				 <&infracfg CLK_INFRA_UFS_MP_SAP>;
+			clock-names = "unipro", "mp";
+			#phy-cells = <0>;
+			status = "disabled";
+		};
+
 		mfgcfg: clock-controller@13fbf000 {
 			compatible = "mediatek,mt6785-mfgcfg", "syscon";
 			reg = <0 0x13fbf000 0 0x1000>;
