@@ -4,6 +4,7 @@
  */
 
 #include <dt-bindings/clock/mediatek,mt6785-clk.h>
+#include <dt-bindings/gce/mediatek,mt6785-gce.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/memory/mediatek,mt6785-memory-port.h>
@@ -495,6 +496,15 @@
 			#iommu-cells = <1>;
 		};
 
+		gce: mailbox@10228000 {
+			compatible = "mediatek,mt6785-gce", "mediatek,mt6779-gce";
+			reg = <0 0x10228000 0 0x4000>;
+			clocks = <&infracfg CLK_INFRA_GCE>;
+			clock-names = "gce";
+			interrupts = <GIC_SPI 185 IRQ_TYPE_LEVEL_LOW>;
+			#mbox-cells = <2>;
+		};
+
 		uart0: serial@11002000 {
 			compatible = "mediatek,mt6785-uart", "mediatek,mt6577-uart";
 			reg = <0 0x11002000 0 0x1000>;
@@ -531,6 +541,9 @@
 			reg = <0 0x14000000 0 0x1000>;
 			#clock-cells = <1>;
 			#reset-cells = <1>;
+			mboxes = <&gce 0 CMDQ_THR_PRIO_HIGHEST>,
+				 <&gce 1 CMDQ_THR_PRIO_HIGHEST>;
+			mediatek,gce-client-reg = <&gce SUBSYS_1400XXXX 0 0x1000>;
 		};
 
 		larb0: larb@14017000 {
