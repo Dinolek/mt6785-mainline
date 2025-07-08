@@ -18,6 +18,14 @@
 	#size-cells = <2>;
 	interrupt-parent = <&sysirq>;
 
+	aliases {
+		ovl0 = &ovl0;
+		ovl-2l0 = &ovl_2l0;
+		ovl-2l1 = &ovl_2l1;
+		rdma0 = &rdma0;
+		rdma1 = &rdma1;
+	};
+
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -901,6 +909,335 @@
 			mboxes = <&gce 0 CMDQ_THR_PRIO_HIGHEST>,
 				 <&gce 1 CMDQ_THR_PRIO_HIGHEST>;
 			mediatek,gce-client-reg = <&gce SUBSYS_1400XXXX 0 0x1000>;
+
+			port {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				mmsys_main: endpoint@0 {
+					reg = <0>;
+					remote-endpoint = <&ovl0_in>;
+				};
+			};
+		};
+
+		ovl0: ovl@14008000 {
+			compatible = "mediatek,mt6785-disp-ovl",
+				     "mediatek,mt8192-disp-ovl";
+			reg = <0 0x14008000 0 0x1000>;
+			clocks = <&mmsys CLK_MM_DISP_OVL0>;
+			interrupts = <GIC_SPI 249 IRQ_TYPE_LEVEL_LOW>;
+			iommus = <&iommu M4U_PORT_DISP_OVL0>,
+				 <&iommu M4U_PORT_DISP_OVL0_HDR>;
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+			mediatek,gce-client-reg = <&gce SUBSYS_1400XXXX 0x8000 0x1000>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					ovl0_in: endpoint {
+						remote-endpoint = <&mmsys_main>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					ovl0_out: endpoint {
+						remote-endpoint = <&ovl_2l0_in>;
+					};
+				};
+			};
+		};
+
+		ovl_2l0: ovl@14009000 {
+			compatible = "mediatek,mt6785-disp-ovl-2l",
+				     "mediatek,mt8192-disp-ovl-2l";
+			reg = <0 0x14009000 0 0x1000>;
+			clocks = <&mmsys CLK_MM_DISP_OVL0_2L>;
+			interrupts = <GIC_SPI 250 IRQ_TYPE_LEVEL_LOW>;
+			iommus = <&iommu M4U_PORT_DISP_OVL0_2L>,
+				 <&iommu M4U_PORT_DISP_OVL0_2L_HDR>;
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+			mediatek,gce-client-reg = <&gce SUBSYS_1400XXXX 0x9000 0x1000>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					ovl_2l0_in: endpoint {
+						remote-endpoint = <&ovl0_out>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					ovl_2l0_out: endpoint {
+						remote-endpoint = <&rdma0_in>;
+					};
+				};
+			};
+		};
+
+		ovl_2l1: ovl@1400a000 {
+			compatible = "mediatek,mt6785-disp-ovl-2l",
+				     "mediatek,mt8192-disp-ovl-2l";
+			reg = <0 0x1400a000 0 0x1000>;
+			clocks = <&mmsys CLK_MM_DISP_OVL1_2L>;
+			interrupts = <GIC_SPI 251 IRQ_TYPE_LEVEL_LOW>;
+			iommus = <&iommu M4U_PORT_DISP_OVL1_2L>;
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+			mediatek,gce-client-reg = <&gce SUBSYS_1400XXXX 0xa000 0x1000>;
+		};
+
+		rdma0: rdma@1400b000 {
+			compatible = "mediatek,mt6785-disp-rdma",
+				     "mediatek,mt8183-disp-rdma";
+			reg = <0 0x1400b000 0 0x1000>;
+			clocks = <&mmsys CLK_MM_DISP_RDMA0>;
+			interrupts = <GIC_SPI 252 IRQ_TYPE_LEVEL_LOW>;
+			iommus = <&iommu M4U_PORT_DISP_RDMA0>;
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+			mediatek,rdma-fifo-size = <5120>;
+			mediatek,gce-client-reg = <&gce SUBSYS_1400XXXX 0xb000 0x1000>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					rdma0_in: endpoint {
+						remote-endpoint = <&ovl_2l0_out>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					rdma0_out: endpoint {
+						remote-endpoint = <&color0_in>;
+					};
+				};
+			};
+		};
+
+		rdma1: rdma@1400c000 {
+			compatible = "mediatek,mt6785-disp-rdma",
+				     "mediatek,mt8183-disp-rdma";
+			reg = <0 0x1400c000 0 0x1000>;
+			clocks = <&mmsys CLK_MM_DISP_RDMA1>;
+			interrupts = <GIC_SPI 253 IRQ_TYPE_LEVEL_LOW>;
+			iommus = <&iommu M4U_PORT_DISP_RDMA1>;
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+			mediatek,rdma-fifo-size = <2048>;
+			mediatek,gce-client-reg = <&gce SUBSYS_1400XXXX 0xc000 0x1000>;
+		};
+
+		color0: color@1400e000 {
+			compatible = "mediatek,mt6785-disp-color",
+				     "mediatek,mt8173-disp-color";
+			reg = <0 0x1400e000 0 0x1000>;
+			clocks = <&mmsys CLK_MM_DISP_COLOR0>;
+			interrupts = <GIC_SPI 255 IRQ_TYPE_LEVEL_LOW>;
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+			mediatek,gce-client-reg = <&gce SUBSYS_1400XXXX 0xe000 0x1000>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					color0_in: endpoint {
+						remote-endpoint = <&rdma0_out>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					color0_out: endpoint {
+						remote-endpoint = <&ccorr0_in>;
+					};
+				};
+			};
+		};
+
+		ccorr0: ccorr@1400f000 {
+			compatible = "mediatek,mt6785-disp-ccorr",
+				     "mediatek,mt8183-disp-ccorr";
+			reg = <0 0x1400f000 0 0x1000>;
+			clocks = <&mmsys CLK_MM_DISP_CCORR0>;
+			interrupts = <GIC_SPI 256 IRQ_TYPE_LEVEL_LOW>;
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+			mediatek,gce-client-reg = <&gce SUBSYS_1400XXXX 0xf000 0x1000>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					ccorr0_in: endpoint {
+						remote-endpoint = <&color0_out>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					ccorr0_out: endpoint {
+						remote-endpoint = <&aal0_in>;
+					};
+				};
+			};
+		};
+
+		aal0: aal@14010000 {
+			compatible = "mediatek,mt6785-disp-aal",
+				     "mediatek,mt8183-disp-aal";
+			reg = <0 0x14010000 0 0x1000>;
+			clocks = <&mmsys CLK_MM_DISP_AAL0>;
+			interrupts = <GIC_SPI 257 IRQ_TYPE_LEVEL_LOW>;
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+			mediatek,gce-client-reg = <&gce SUBSYS_1401XXXX 0 0x1000>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					aal0_in: endpoint {
+						remote-endpoint = <&ccorr0_out>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					aal0_out: endpoint {
+						remote-endpoint = <&gamma0_in>;
+					};
+				};
+			};
+		};
+
+		gamma0: gamma@14011000 {
+			compatible = "mediatek,mt6785-disp-gamma",
+				     "mediatek,mt8183-disp-gamma";
+			reg = <0 0x14011000 0 0x1000>;
+			clocks = <&mmsys CLK_MM_DISP_GAMMA0>;
+			interrupts = <GIC_SPI 258 IRQ_TYPE_LEVEL_LOW>;
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+			mediatek,gce-client-reg = <&gce SUBSYS_1401XXXX 0x1000 0x1000>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					gamma0_in: endpoint {
+						remote-endpoint = <&aal0_out>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					gamma0_out: endpoint {
+						remote-endpoint = <&postmask0_in>;
+					};
+				};
+			};
+		};
+
+		dither0: dither@14012000 {
+			compatible = "mediatek,mt6785-disp-dither",
+				     "mediatek,mt8183-disp-dither";
+			reg = <0 0x14012000 0 0x1000>;
+			clocks = <&mmsys CLK_MM_DISP_DITHER0>;
+			interrupts = <GIC_SPI 259 IRQ_TYPE_LEVEL_LOW>;
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+			mediatek,gce-client-reg = <&gce SUBSYS_1401XXXX 0x2000 0x1000>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					dither0_in: endpoint {
+						remote-endpoint = <&postmask0_out>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					dither0_out: endpoint { };
+				};
+			};
+		};
+
+		dsi0: dsi@14014000 {
+			compatible = "mediatek,mt6785-dsi", "mediatek,mt8183-dsi";
+			reg = <0 0x14014000 0 0x1000>;
+			clocks = <&mmsys CLK_MM_DSI_MM>, <&mmsys CLK_MM_DSI_IF>,
+				 <&mipi_tx0>;
+			clock-names = "engine", "digital", "hs";
+			interrupts = <GIC_SPI 260 IRQ_TYPE_LEVEL_LOW>;
+			phys = <&mipi_tx0>;
+			phy-names = "dphy";
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+			resets = <&mmsys MT6785_MMSYS_DISP_DSI0_RST>;
+			status = "disabled";
+
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					dsi0_in: endpoint { };
+				};
+
+				port@1 {
+					reg = <1>;
+
+					dsi0_out: endpoint { };
+				};
+			};
+		};
+
+		mutex: mutex@14016000 {
+			compatible = "mediatek,mt6785-disp-mutex";
+			reg = <0 0x14016000 0 0x1000>;
+			interrupts = <GIC_SPI 241 IRQ_TYPE_LEVEL_LOW>;
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+			mediatek,gce-events = <CMDQ_EVENT_MUTEX0_STREAM_EOF>,
+					      <CMDQ_EVENT_MUTEX1_STREAM_EOF>;
+			mediatek,gce-client-reg = <&gce SUBSYS_1401XXXX 0x6000 0x1000>;
 		};
 
 		larb0: larb@14017000 {
@@ -931,6 +1268,37 @@
 				 <&mmsys CLK_MM_GALS_COMM0>, <&mmsys CLK_MM_GALS_COMM1>;
 			clock-names = "apb", "smi", "gals0", "gals1";
 			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+		};
+
+		postmask0: postmask@14021000 {
+			compatible = "mediatek,mt6785-disp-postmask",
+				     "mediatek,mt8192-disp-postmask";
+			reg = <0 0x14021000 0 0x1000>;
+			clocks = <&mmsys CLK_MM_DISP_POSTMASK0>;
+			interrupts = <GIC_SPI 268 IRQ_TYPE_LEVEL_LOW>;
+			power-domains = <&spm MT6785_POWER_DOMAIN_MM>;
+			mediatek,gce-client-reg = <&gce SUBSYS_1402XXXX 0x1000 0x1000>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					postmask0_in: endpoint {
+						remote-endpoint = <&gamma0_out>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					postmask0_out: endpoint {
+						remote-endpoint = <&dither0_in>;
+					};
+				};
+			};
 		};
 
 		imgsys: clock-controller@15020000 {
