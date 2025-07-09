@@ -7,6 +7,7 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/pinctrl/mediatek,mt6785-pinfunc.h>
+#include <dt-bindings/power/mediatek,mt6785-power.h>
 #include <dt-bindings/reset/mediatek,mt6785-resets.h>
 
 / {
@@ -340,6 +341,118 @@
 			#interrupt-cells = <2>;
 		};
 
+		scpsys: syscon@10006000 {
+			compatible = "mediatek,mt6785-scpsys", "syscon", "simple-mfd";
+			reg = <0 0x10006000 0 0x1000>;
+
+			spm: power-controller {
+				compatible = "mediatek,mt6785-power-controller";
+				#address-cells = <1>;
+				#size-cells = <0>;
+				#power-domain-cells = <1>;
+
+				power-domain@MT6785_POWER_DOMAIN_AUDIO {
+					reg = <MT6785_POWER_DOMAIN_AUDIO>;
+					clocks = <&infracfg CLK_INFRA_AUDIO_26M>;
+					clock-names = "audio";
+					mediatek,infracfg = <&infracfg>;
+					#power-domain-cells = <0>;
+				};
+
+				power-domain@MT6785_POWER_DOMAIN_CONN {
+					reg = <MT6785_POWER_DOMAIN_CONN>;
+					mediatek,infracfg = <&infracfg>;
+					#power-domain-cells = <0>;
+				};
+
+				power-domain@MT6785_POWER_DOMAIN_MD {
+					reg = <MT6785_POWER_DOMAIN_MD>;
+					mediatek,infracfg = <&infracfg>;
+					#power-domain-cells = <0>;
+				};
+
+				mfg_async: power-domain@MT6785_POWER_DOMAIN_MFG_ASYNC {
+					reg = <MT6785_POWER_DOMAIN_MFG_ASYNC>;
+					clocks = <&topckgen CLK_TOP_MFG>;
+					clock-names = "mfg";
+					#address-cells = <1>;
+					#size-cells = <0>;
+					#power-domain-cells = <1>;
+
+					mfg: power-domain@MT6785_POWER_DOMAIN_MFG {
+						reg = <MT6785_POWER_DOMAIN_MFG>;
+						mediatek,infracfg = <&infracfg>;
+						#address-cells = <1>;
+						#size-cells = <0>;
+						#power-domain-cells = <1>;
+
+						power-domain@MT6785_POWER_DOMAIN_MFG_CORE0 {
+							reg = <MT6785_POWER_DOMAIN_MFG_CORE0>;
+							#power-domain-cells = <0>;
+						};
+
+						power-domain@MT6785_POWER_DOMAIN_MFG_CORE1 {
+							reg = <MT6785_POWER_DOMAIN_MFG_CORE1>;
+							#power-domain-cells = <0>;
+						};
+
+						power-domain@MT6785_POWER_DOMAIN_MFG_CORE2 {
+							reg = <MT6785_POWER_DOMAIN_MFG_CORE2>;
+							#power-domain-cells = <0>;
+						};
+
+						power-domain@MT6785_POWER_DOMAIN_MFG_CORE3 {
+							reg = <MT6785_POWER_DOMAIN_MFG_CORE3>;
+							#power-domain-cells = <0>;
+						};
+					};
+				};
+
+				power-domain@MT6785_POWER_DOMAIN_MM {
+					reg = <MT6785_POWER_DOMAIN_MM>;
+					clocks = <&topckgen CLK_TOP_MM>;
+					clock-names = "mm";
+					mediatek,infracfg-nao = <&infracfg_nao>;
+					mediatek,infracfg = <&infracfg>;
+					#address-cells = <1>;
+					#size-cells = <0>;
+					#power-domain-cells = <1>;
+
+					power-domain@MT6785_POWER_DOMAIN_CAM {
+						reg = <MT6785_POWER_DOMAIN_CAM>;
+						clocks = <&topckgen CLK_TOP_CAM>;
+						clock-names = "cam";
+						mediatek,infracfg = <&infracfg>;
+						#power-domain-cells = <0>;
+					};
+
+					power-domain@MT6785_POWER_DOMAIN_ISP {
+						reg = <MT6785_POWER_DOMAIN_ISP>;
+						clocks = <&topckgen CLK_TOP_IMG>;
+						clock-names = "isp";
+						mediatek,infracfg = <&infracfg>;
+						#power-domain-cells = <0>;
+					};
+
+					power-domain@MT6785_POWER_DOMAIN_VDEC {
+						reg = <MT6785_POWER_DOMAIN_VDEC>;
+						clocks = <&topckgen CLK_TOP_VDEC>;
+						clock-names = "vdec";
+						mediatek,infracfg = <&infracfg>;
+						#power-domain-cells = <0>;
+					};
+
+					power-domain@MT6785_POWER_DOMAIN_VENC {
+						reg = <MT6785_POWER_DOMAIN_VENC>;
+						clocks = <&topckgen CLK_TOP_VENC>;
+						clock-names = "venc";
+						mediatek,infracfg = <&infracfg>;
+						#power-domain-cells = <0>;
+					};
+				};
+			};
+		};
+
 		watchdog: watchdog@10007000 {
 			compatible = "mediatek,mt6785-wdt";
 			reg = <0 0x10007000 0 0x1000>;
@@ -394,6 +507,7 @@
 			compatible = "mediatek,mt6785-mfgcfg", "syscon";
 			reg = <0 0x13fbf000 0 0x1000>;
 			#clock-cells = <1>;
+			power-domains = <&spm MT6785_POWER_DOMAIN_MFG>;
 		};
 
 		mmsys: syscon@14000000 {
