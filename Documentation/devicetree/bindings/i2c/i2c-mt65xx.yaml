@@ -33,6 +33,10 @@ properties:
       - const: mediatek,mt8192-i2c
       - items:
           - enum:
+              - mediatek,mt6785-i2c
+          - const: mediatek,mt8186-i2c
+      - items:
+          - enum:
               - mediatek,mt7629-i2c
               - mediatek,mt8516-i2c
           - const: mediatek,mt2712-i2c
