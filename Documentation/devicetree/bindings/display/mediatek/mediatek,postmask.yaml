@@ -25,6 +25,7 @@ properties:
           - mediatek,mt8192-disp-postmask
       - items:
           - enum:
+              - mediatek,mt6785-disp-postmask
               - mediatek,mt8186-disp-postmask
               - mediatek,mt8188-disp-postmask
           - const: mediatek,mt8192-disp-postmask
