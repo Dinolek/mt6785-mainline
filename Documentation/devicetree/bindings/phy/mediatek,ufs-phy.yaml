@@ -26,6 +26,7 @@ properties:
     oneOf:
       - items:
           - enum:
+              - mediatek,mt6785-ufsphy
               - mediatek,mt8195-ufsphy
           - const: mediatek,mt8183-ufsphy
       - const: mediatek,mt8183-ufsphy
