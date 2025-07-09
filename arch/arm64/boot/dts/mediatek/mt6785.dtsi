@@ -1385,6 +1385,28 @@
 			#clock-cells = <1>;
 		};
 
+		mmc0: mmc@11230000 {
+			compatible = "mediatek,mt6785-mmc", "mediatek,mt8183-mmc";
+			reg = <0 0x11230000 0 0x1000>, <0 0x11f50000 0 0x1000>;
+			interrupts = <GIC_SPI 101 IRQ_TYPE_LEVEL_LOW>;
+			clocks = <&topckgen CLK_TOP_MSDC50_0>,
+				 <&infracfg CLK_INFRA_MSDC0>,
+				 <&infracfg CLK_INFRA_MSDC0_SRC>;
+			clock-names = "source", "hclk", "source_cg";
+			status = "disabled";
+		};
+
+		mmc1: mmc@11240000 {
+			compatible = "mediatek,mt6785-mmc", "mediatek,mt8183-mmc";
+			reg = <0 0x11240000 0 0x1000>, <0 0x11e10000 0 0x1000>;
+			interrupts = <GIC_SPI 102 IRQ_TYPE_LEVEL_LOW>;
+			clocks = <&topckgen CLK_TOP_MSDC30_1>,
+				 <&infracfg CLK_INFRA_MSDC1>,
+				 <&infracfg CLK_INFRA_MSDC1_SRC>;
+			clock-names = "source", "hclk", "source_cg";
+			status = "disabled";
+		};
+
 		ufshci: ufshci@11270000 {
 			compatible = "mediatek,mt6785-ufshci";
 			reg = <0 0x11270000 0 0x2300>;
