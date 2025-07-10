@@ -119,7 +119,7 @@ static const struct mfd_cell lm36274_devices[] = {
 	LM363X_REGULATOR(LM36274_LDO_POS),
 	LM363X_REGULATOR(LM36274_LDO_NEG),
 	{
-		.name          = "lm36274-leds",
+		.name          = "lm36274-backlight",
 		.id            = LM36274,
 		.of_compatible = "ti,lm36274-backlight",
 	},
