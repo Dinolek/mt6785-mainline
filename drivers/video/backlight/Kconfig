@@ -404,6 +404,14 @@ config BACKLIGHT_LM3509
 	help
 	  This supports TI LM3509 Backlight Driver
 
+config BACKLIGHT_LM36274
+	tristate "Backlight Driver for LM36274"
+	depends on MFD_TI_LMU
+	select LEDS_TI_LMU_COMMON
+	help
+	  Say Y to enable the LM36274 Backlight Driver for TI LMU devices.
+	  This supports the LED device LM36274.
+
 config BACKLIGHT_LM3630A
 	tristate "Backlight Driver for LM3630A"
 	depends on I2C && PWM

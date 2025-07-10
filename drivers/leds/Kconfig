@@ -981,14 +981,6 @@ config LEDS_LM3697
 	  Say Y to enable the LM3697 LED driver for TI LMU devices.
 	  This supports the LED device LM3697.
 
-config LEDS_LM36274
-	tristate "LED driver for LM36274"
-	depends on LEDS_CLASS && MFD_TI_LMU
-	select LEDS_TI_LMU_COMMON
-	help
-	  Say Y to enable the LM36274 LED driver for TI LMU devices.
-	  This supports the LED device LM36274.
-
 config LEDS_ST1202
 	tristate "LED Support for STMicroelectronics LED1202 I2C chips"
 	depends on LEDS_CLASS
