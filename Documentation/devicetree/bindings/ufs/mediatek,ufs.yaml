@@ -13,6 +13,7 @@ maintainers:
 properties:
   compatible:
     oneOf:
+      - const: mediatek,mt6785-ufshci
       - const: mediatek,mt8183-ufshci
       - const: mediatek,mt8195-ufshci
       - items:
