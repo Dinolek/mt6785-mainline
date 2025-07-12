@@ -5,9 +5,51 @@
 
 /dts-v1/;
 #include "mt6785.dtsi"
+#include "mt6359.dtsi"
 
 / {
 	model = "Xiaomi Redmi Note 8 Pro";
 	compatible = "xiaomi,begonia", "mediatek,mt6785";
 	chassis-type = "handset";
+};
+
+&mt6359_vcore_buck_reg {
+	regulator-always-on;
+};
+
+&mt6359_vgpu11_buck_reg {
+	regulator-name = "vgpu";
+	regulator-min-microvolt = <550000>;
+	regulator-max-microvolt = <875000>;
+
+	regulator-coupled-with = <&mt6359_vpu_buck_reg>;
+	regulator-coupled-max-spread = <100000>;
+};
+
+&mt6359_vproc1_buck_reg {
+	regulator-name = "vproc_b";
+	regulator-always-on;
+};
+
+&mt6359_vproc2_buck_reg {
+	regulator-name = "vproc_l";
+	regulator-always-on;
+};
+
+&mt6359_vpu_buck_reg {
+	regulator-name = "vsram_gpu";
+	regulator-min-microvolt = <850000>;
+	regulator-max-microvolt = <975000>;
+
+	regulator-coupled-with = <&mt6359_vgpu11_buck_reg>;
+	regulator-coupled-max-spread = <100000>;
+};
+
+&mt6359_vsram_others_ldo_reg {
+	regulator-name = "vsram_core";
+	regulator-always-on;
+};
+
+&pmic {
+	interrupts-extended = <&pio 193 IRQ_TYPE_LEVEL_HIGH>;
 };
