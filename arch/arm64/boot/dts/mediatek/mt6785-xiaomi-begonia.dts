@@ -4,6 +4,8 @@
  */
 
 /dts-v1/;
+#include <dt-bindings/input/input.h>
+
 #include "mt6785.dtsi"
 #include "mt6359.dtsi"
 
@@ -17,6 +19,28 @@
 		haptic-supply = <&mt6359_vibr_ldo_reg>;
 		max-microvolt = <2800000>;
 		min-microvolt = <1200000>;
+	};
+
+	volume_buttons: volume-buttons {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&volume_button_pins>;
+
+		button-volume-down {
+			label = "Volume Down";
+			linux,code = <KEY_VOLUMEDOWN>;
+			debounce-interval = <100>;
+
+			gpios = <&pio 60 GPIO_ACTIVE_LOW>;
+		};
+
+		button-volume-up {
+			label = "Volume Up";
+			linux,code = <KEY_VOLUMEUP>;
+			debounce-interval = <100>;
+
+			gpios = <&pio 59 GPIO_ACTIVE_LOW>;
+		};
 	};
 };
 
@@ -99,6 +123,16 @@
 &mt6359_vsram_others_ldo_reg {
 	regulator-name = "vsram_core";
 	regulator-always-on;
+};
+
+&pio {
+	volume_button_pins: volume-button-pins {
+		pins-volume {
+			pinmux = <PINMUX_GPIO59__FUNC_KPCOL0>,
+				 <PINMUX_GPIO60__FUNC_KPCOL1>;
+			input-enable;
+		};
+	};
 };
 
 &pmic {
