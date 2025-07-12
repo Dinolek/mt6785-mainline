@@ -78,6 +78,44 @@
 	proc-supply = <&mt6359_vproc1_buck_reg>;
 };
 
+&dither0_out {
+	remote-endpoint = <&dsi0_in>;
+};
+
+&dsi0 {
+	status = "okay";
+
+	panel: panel@0 {
+		reg = <0>;
+
+		backlight = <&backlight>;
+		reset-gpios = <&pio 44 GPIO_ACTIVE_LOW>;
+
+		vddio-supply = <&mt6359_vio18_ldo_reg>;
+		vddneg-supply = <&backlight_vddpos>;
+		vddpos-supply = <&backlight_vddneg>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&panel_pins>;
+
+		status = "disabled";
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+};
+
+&dsi0_in {
+	remote-endpoint = <&dither0_out>;
+};
+
+&dsi0_out {
+	remote-endpoint = <&panel_in>;
+};
+
 &i2c0 {
 	clock-frequency = <400000>;
 
@@ -141,6 +179,10 @@
 	domain-supply = <&mt6359_vgpu11_buck_reg>;
 };
 
+&mipi_tx0 {
+	status = "okay";
+};
+
 &mt6359_vcore_buck_reg {
 	regulator-always-on;
 };
@@ -191,6 +233,12 @@
 			pinmux = <PINMUX_GPIO51__FUNC_SCL0>,
 				 <PINMUX_GPIO52__FUNC_SDA0>;
 			bias-pull-up;
+		};
+	};
+
+	panel_pins: panel-pins {
+		pins-reset {
+			pinmux = <PINMUX_GPIO44__FUNC_GPIO44>;
 		};
 	};
 
