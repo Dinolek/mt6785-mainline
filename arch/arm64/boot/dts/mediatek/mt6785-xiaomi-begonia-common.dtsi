@@ -242,12 +242,60 @@
 		};
 	};
 
+	spi5_pins: spi5-pins {
+		pins-bus {
+			pinmux = <PINMUX_GPIO37__FUNC_SPI5_A_MI>,
+				 <PINMUX_GPIO36__FUNC_SPI5_A_CSB>,
+				 <PINMUX_GPIO35__FUNC_SPI5_A_MO>,
+				 <PINMUX_GPIO38__FUNC_SPI5_A_CLK>;
+			bias-disable;
+		};
+	};
+
+	touchscreen_pins: touchscreen-pins {
+		pins-interrupt {
+			pinmux = <PINMUX_GPIO1__FUNC_GPIO1>;
+			bias-pull-up;
+			input-enable;
+		};
+
+		pins-reset {
+			pinmux = <PINMUX_GPIO2__FUNC_GPIO2>;
+		};
+	};
+
 	volume_button_pins: volume-button-pins {
 		pins-volume {
 			pinmux = <PINMUX_GPIO59__FUNC_KPCOL0>,
 				 <PINMUX_GPIO60__FUNC_KPCOL1>;
 			input-enable;
 		};
+	};
+};
+
+&spi5 {
+	mediatek,pad-select = <0>;
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi5_pins>;
+
+	status = "okay";
+
+	touchscreen: touchscreen@0 {
+		compatible = "novatek,nt36672a-ts";
+		reg = <0>;
+
+		interrupts-extended = <&pio 1 IRQ_TYPE_EDGE_RISING>;
+		reset-gpios = <&pio 2 GPIO_ACTIVE_HIGH>;
+		panel = <&panel>;
+
+		spi-cs-setup-delay-ns = <20>;
+		spi-max-frequency = <5000000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&touchscreen_pins>;
+
+		status = "disabled";
 	};
 };
 

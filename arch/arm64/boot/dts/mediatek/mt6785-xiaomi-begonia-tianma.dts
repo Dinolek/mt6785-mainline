@@ -16,3 +16,8 @@
 	compatible = "xiaomi,begonia-tianma-nt36672a", "novatek,nt36672a";
 	status = "okay";
 };
+
+&touchscreen {
+	firmware-name = "novatek/nt36672a_begonia_tianma.bin";
+	status = "okay";
+};
