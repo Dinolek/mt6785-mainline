@@ -321,6 +321,36 @@
 				regulator-always-on;
 			};
 		};
+
+		tcpc {
+			compatible = "mediatek,mt6360-tcpc";
+
+			interrupts-extended = <&pio 7 IRQ_TYPE_EDGE_FALLING>;
+			interrupt-names = "PD_IRQB";
+			vbus-supply = <&otg_vbus_regulator>;
+
+			connector {
+				compatible = "usb-c-connector";
+				label = "USB-C";
+				data-role = "dual";
+				op-sink-microwatt = <10000000>;
+				power-role = "dual";
+				try-power-role = "sink";
+
+				source-pdos = <PDO_FIXED(5000, 1500,
+							 PDO_FIXED_DUAL_ROLE |
+							 PDO_FIXED_DATA_SWAP)>;
+				sink-pdos = <PDO_FIXED(5000, 2000,
+						       PDO_FIXED_DUAL_ROLE |
+						       PDO_FIXED_DATA_SWAP)>;
+
+				port {
+					typec_con_hs: endpoint {
+						remote-endpoint = <&mtu3_hs0_role_sw>;
+					};
+				};
+			};
+		};
 	};
 };
 
@@ -482,6 +512,19 @@
 	};
 };
 
+&ssusb {
+	maximum-speed = "high-speed";
+	usb-role-switch;
+	vusb33-supply = <&mt6359_vusb_ldo_reg>;
+	status = "okay";
+
+	port {
+		mtu3_hs0_role_sw: endpoint {
+			remote-endpoint = <&typec_con_hs>;
+		};
+	};
+};
+
 &ufshci {
 	mediatek,ufs-disable-mcq;
 	mediatek,ufs-support-va09;
@@ -494,5 +537,10 @@
 };
 
 &ufsphy {
+	status = "okay";
+};
+
+&xhci {
+	vusb33-supply = <&mt6359_vusb_ldo_reg>;
 	status = "okay";
 };
