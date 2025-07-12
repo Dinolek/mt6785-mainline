@@ -137,4 +137,13 @@
 
 &pmic {
 	interrupts-extended = <&pio 193 IRQ_TYPE_LEVEL_HIGH>;
+
+	keys {
+		compatible = "mediatek,mt6359-keys";
+
+		power {
+			linux,keycodes = <KEY_POWER>;
+			wakeup-source;
+		};
+	};
 };
