@@ -147,3 +147,18 @@
 		};
 	};
 };
+
+&ufshci {
+	mediatek,ufs-disable-mcq;
+	mediatek,ufs-support-va09;
+
+	va09-supply = <&mt6359_va09_ldo_reg>;
+	vcc-supply = <&mt6359_vemc_ldo_reg>;
+	vccq2-supply = <&mt6359_vufs_ldo_reg>;
+
+	status = "okay";
+};
+
+&ufsphy {
+	status = "okay";
+};
