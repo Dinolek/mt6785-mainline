@@ -13,6 +13,50 @@
 	chassis-type = "handset";
 };
 
+&cci {
+	proc-supply = <&mt6359_vproc2_buck_reg>;
+};
+
+&cpu0 {
+	proc-supply = <&mt6359_vproc2_buck_reg>;
+};
+
+&cpu1 {
+	proc-supply = <&mt6359_vproc2_buck_reg>;
+};
+
+&cpu2 {
+	proc-supply = <&mt6359_vproc2_buck_reg>;
+};
+
+&cpu3 {
+	proc-supply = <&mt6359_vproc2_buck_reg>;
+};
+
+&cpu4 {
+	proc-supply = <&mt6359_vproc2_buck_reg>;
+};
+
+&cpu5 {
+	proc-supply = <&mt6359_vproc2_buck_reg>;
+};
+
+&cpu6 {
+	proc-supply = <&mt6359_vproc1_buck_reg>;
+};
+
+&cpu7 {
+	proc-supply = <&mt6359_vproc1_buck_reg>;
+};
+
+&mfg {
+	domain-supply = <&mt6359_vpu_buck_reg>;
+};
+
+&mfg_async {
+	domain-supply = <&mt6359_vgpu11_buck_reg>;
+};
+
 &mt6359_vcore_buck_reg {
 	regulator-always-on;
 };
