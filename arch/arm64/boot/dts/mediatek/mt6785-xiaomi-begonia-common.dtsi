@@ -116,6 +116,11 @@
 	remote-endpoint = <&panel_in>;
 };
 
+&gpu {
+	mali-supply = <&mt6359_vgpu11_buck_reg>;
+	status = "okay";
+};
+
 &i2c0 {
 	clock-frequency = <400000>;
 
