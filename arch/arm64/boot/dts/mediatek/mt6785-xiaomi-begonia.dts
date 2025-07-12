@@ -59,6 +59,43 @@
 	proc-supply = <&mt6359_vproc1_buck_reg>;
 };
 
+&dither0_out {
+	remote-endpoint = <&dsi0_in>;
+};
+
+&dsi0 {
+	status = "okay";
+
+	panel: panel@0 {
+		compatible = "xiaomi,begonia-csot-nt36672a", "novatek,nt36672a";
+		reg = <0>;
+
+		backlight = <&backlight>;
+		reset-gpios = <&pio 44 GPIO_ACTIVE_LOW>;
+
+		vddio-supply = <&mt6359_vio18_ldo_reg>;
+		vddneg-supply = <&backlight_vddpos>;
+		vddpos-supply = <&backlight_vddneg>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&panel_pins>;
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+};
+
+&dsi0_in {
+	remote-endpoint = <&dither0_out>;
+};
+
+&dsi0_out {
+	remote-endpoint = <&panel_in>;
+};
+
 &i2c0 {
 	clock-frequency = <400000>;
 
@@ -136,6 +173,10 @@
 	domain-supply = <&mt6359_vgpu11_buck_reg>;
 };
 
+&mipi_tx0 {
+	status = "okay";
+};
+
 &mt6359_vcore_buck_reg {
 	regulator-always-on;
 };
@@ -194,6 +235,12 @@
 			pinmux = <PINMUX_GPIO59__FUNC_KPCOL0>,
 				 <PINMUX_GPIO60__FUNC_KPCOL1>;
 			input-enable;
+		};
+	};
+
+	panel_pins: panel-pins {
+		pins-reset {
+			pinmux = <PINMUX_GPIO44__FUNC_GPIO44>;
 		};
 	};
 };
