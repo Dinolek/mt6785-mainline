@@ -4,6 +4,7 @@
  */
 
 /dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
 
 #include "mt6785.dtsi"
@@ -80,6 +81,61 @@
 	proc-supply = <&mt6359_vproc1_buck_reg>;
 };
 
+&i2c0 {
+	clock-frequency = <400000>;
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0_pins>;
+
+	status = "okay";
+
+	lm36274@11 {
+		compatible = "ti,lm36274";
+		reg = <0x11>;
+
+		enable-gpios = <&pio 22 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&backlight_pins>;
+
+		regulators {
+			compatible = "ti,lm36274-regulator";
+
+			vboost {
+				regulator-name = "backlight_vboost";
+				regulator-max-microvolt = <7150000>;
+				regulator-min-microvolt = <4000000>;
+				regulator-always-on;
+			};
+
+			backlight_vddpos: vpos {
+				regulator-name = "backlight_vddpos";
+				regulator-max-microvolt = <6500000>;
+				regulator-min-microvolt = <4000000>;
+			};
+
+			backlight_vddneg: vneg {
+				regulator-name = "backlight_vddneg";
+				regulator-max-microvolt = <6500000>;
+				regulator-min-microvolt = <4000000>;
+			};
+		};
+
+		backlight: backlight {
+			compatible = "ti,lm36274-backlight";
+
+			led {
+				default-brightness = <800>;
+				led-sources = <0 1 2>;
+				max-brightness = <1879>;
+				ti,exponential-mode;
+				ti,ovp-microvolt = <29000000>;
+				ti,ramp-time-us = <100000>;
+			};
+		};
+	};
+};
+
 &mfg {
 	domain-supply = <&mt6359_vpu_buck_reg>;
 };
@@ -126,6 +182,21 @@
 };
 
 &pio {
+	backlight_pins: backlight-pins {
+		pins-enable {
+			pinmux = <PINMUX_GPIO22__FUNC_GPIO22>;
+			output-high;
+		};
+	};
+
+	i2c0_pins: i2c0-pins {
+		pins-bus {
+			pinmux = <PINMUX_GPIO51__FUNC_SCL0>,
+				 <PINMUX_GPIO52__FUNC_SDA0>;
+			bias-pull-up;
+		};
+	};
+
 	volume_button_pins: volume-button-pins {
 		pins-volume {
 			pinmux = <PINMUX_GPIO59__FUNC_KPCOL0>,
