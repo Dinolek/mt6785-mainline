@@ -5,6 +5,9 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
+#include <dt-bindings/regulator/mediatek,mt6360-regulator.h>
+#include <dt-bindings/usb/pd.h>
 
 #include "mt6785.dtsi"
 #include "mt6359.dtsi"
@@ -176,6 +179,151 @@
 	};
 };
 
+&i2c5 {
+	clock-frequency = <3400000>;
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c5_pins>;
+
+	status = "okay";
+
+	pmic@34 {
+		compatible = "mediatek,mt6360";
+		reg = <0x34>;
+
+		interrupts-extended = <&pio 16 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "IRQB";
+		interrupt-controller;
+		#interrupt-cells = <1>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&mt6360_pins>;
+
+		adc {
+			compatible = "mediatek,mt6360-adc";
+			#io-channel-cells = <1>;
+		};
+
+		charger {
+			compatible = "mediatek,mt6360-chg";
+			richtek,vinovp-microvolt = <14500000>;
+
+			otg_vbus_regulator: usb-otg-vbus-regulator {
+				regulator-name = "usb-otg-vbus";
+				regulator-max-microvolt = <5825000>;
+				regulator-min-microvolt = <4425000>;
+			};
+		};
+
+		led-controller {
+			compatible = "mediatek,mt6360-led";
+
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			led@0 {
+				reg = <0>;
+				color = <LED_COLOR_ID_WHITE>;
+				function = LED_FUNCTION_INDICATOR;
+				led-max-microamp = <24000>;
+			};
+
+			led@4 {
+				reg = <4>;
+				color = <LED_COLOR_ID_WHITE>;
+				flash-max-microamp = <500000>;
+				flash-max-timeout-us = <1024000>;
+				function = LED_FUNCTION_FLASH;
+				function-enumerator = <1>;
+				led-max-microamp = <200000>;
+			};
+
+			led@5 {
+				reg = <5>;
+				color = <LED_COLOR_ID_WHITE>;
+				flash-max-microamp = <500000>;
+				flash-max-timeout-us = <1024000>;
+				function = LED_FUNCTION_FLASH;
+				function-enumerator = <2>;
+				led-max-microamp = <200000>;
+			};
+		};
+
+		regulator {
+			compatible = "mediatek,mt6360-regulator";
+			LDO_VIN3-supply = <&mt6360_vdram1_reg>;
+
+			buck1 {
+				regulator-name = "vapu";
+				regulator-min-microvolt = <300000>;
+				regulator-max-microvolt = <1300000>;
+				regulator-allowed-modes = <MT6360_OPMODE_NORMAL
+							   MT6360_OPMODE_LP
+							   MT6360_OPMODE_ULP>;
+			};
+
+			mt6360_vdram1_reg: buck2 {
+				regulator-name = "vdram1";
+				regulator-min-microvolt = <300000>;
+				regulator-max-microvolt = <1300000>;
+				regulator-allowed-modes = <MT6360_OPMODE_NORMAL
+							   MT6360_OPMODE_LP
+							   MT6360_OPMODE_ULP>;
+			};
+
+			ldo1 {
+				regulator-name = "vfp";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <3600000>;
+				regulator-allowed-modes = <MT6360_OPMODE_NORMAL
+							   MT6360_OPMODE_LP>;
+			};
+
+			ldo2 {
+				regulator-name = "vtp";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <3600000>;
+				regulator-allowed-modes = <MT6360_OPMODE_NORMAL
+							   MT6360_OPMODE_LP>;
+			};
+
+			mt6360_vmc_ldo_reg: ldo3 {
+				regulator-name = "vmc";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <3600000>;
+				regulator-allowed-modes = <MT6360_OPMODE_NORMAL
+							   MT6360_OPMODE_LP>;
+			};
+
+			mt6360_vmch_ldo_reg: ldo5 {
+				regulator-name = "vmch";
+				regulator-min-microvolt = <2700000>;
+				regulator-max-microvolt = <3600000>;
+				regulator-allowed-modes = <MT6360_OPMODE_NORMAL
+							   MT6360_OPMODE_LP>;
+			};
+
+			ldo6 {
+				regulator-name = "vmddr";
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <2100000>;
+				regulator-allowed-modes = <MT6360_OPMODE_NORMAL
+							   MT6360_OPMODE_LP>;
+				regulator-always-on;
+			};
+
+			ldo7 {
+				regulator-name = "vdram2";
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <2100000>;
+				regulator-allowed-modes = <MT6360_OPMODE_NORMAL
+							   MT6360_OPMODE_LP>;
+				regulator-always-on;
+			};
+		};
+	};
+};
+
 &mfg {
 	domain-supply = <&mt6359_vpu_buck_reg>;
 };
@@ -238,6 +386,23 @@
 			pinmux = <PINMUX_GPIO51__FUNC_SCL0>,
 				 <PINMUX_GPIO52__FUNC_SDA0>;
 			bias-pull-up;
+		};
+	};
+
+	i2c5_pins: i2c5-pins {
+		pins-bus {
+			pinmux = <PINMUX_GPIO28__FUNC_SCL5>,
+				 <PINMUX_GPIO29__FUNC_SDA5>;
+			bias-pull-up;
+		};
+	};
+
+	mt6360_pins: mt6360-pins {
+		pins-interrupt {
+			pinmux = <PINMUX_GPIO7__FUNC_GPIO7>,
+				 <PINMUX_GPIO16__FUNC_GPIO16>;
+			bias-pull-up;
+			input-enable;
 		};
 	};
 
