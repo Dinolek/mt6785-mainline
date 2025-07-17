@@ -366,6 +366,29 @@
 	status = "okay";
 };
 
+&mmc1 {
+	bus-width = <4>;
+	cd-gpios = <&pio 8 GPIO_ACTIVE_HIGH>;
+	max-frequency = <200000000>;
+
+	cap-sd-highspeed;
+	disable-wp;
+	no-mmc;
+	no-sdio;
+	sd-uhs-ddr50;
+	sd-uhs-sdr104;
+	sd-uhs-sdr50;
+
+	vmmc-supply = <&mt6360_vmch_ldo_reg>;
+	vqmmc-supply = <&mt6360_vmc_ldo_reg>;
+
+	pinctrl-names = "default", "state_uhs";
+	pinctrl-0 = <&mmc1_pins>, <&mmc1_pins_detect>;
+	pinctrl-1 = <&mmc1_pins>;
+
+	status = "okay";
+};
+
 &mt6359_vcore_buck_reg {
 	regulator-always-on;
 };
@@ -424,6 +447,33 @@
 			pinmux = <PINMUX_GPIO28__FUNC_SCL5>,
 				 <PINMUX_GPIO29__FUNC_SDA5>;
 			bias-pull-up;
+		};
+	};
+
+	mmc1_pins: mmc1-pins {
+		pins-cmd-dat {
+			pinmux = <PINMUX_GPIO135__FUNC_MSDC1_CMD>,
+				 <PINMUX_GPIO137__FUNC_MSDC1_DAT0>,
+				 <PINMUX_GPIO139__FUNC_MSDC1_DAT1>,
+				 <PINMUX_GPIO138__FUNC_MSDC1_DAT2>,
+				 <PINMUX_GPIO136__FUNC_MSDC1_DAT3>;
+			bias-pull-up = <MTK_PUPD_SET_R1R0_01>;
+			drive-strength = <8>;
+			input-enable;
+		};
+
+		pins-clk {
+			pinmux = <PINMUX_GPIO134__FUNC_MSDC1_CLK>;
+			bias-pull-down = <MTK_PUPD_SET_R1R0_10>;
+			drive-strength = <8>;
+		};
+	};
+
+	mmc1_pins_detect: mmc1-pins-detect {
+		pins-insert {
+			pinmux = <PINMUX_GPIO8__FUNC_GPIO8>;
+			bias-pull-up;
+			input-enable;
 		};
 	};
 
