@@ -18,6 +18,15 @@
 	compatible = "xiaomi,begonia", "mediatek,mt6785";
 	chassis-type = "handset";
 
+	chosen {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/* needed by Little Kernel */
+		bootargs = "";
+	};
+
 	haptic {
 		compatible = "regulator-haptic";
 		haptic-supply = <&mt6359_vibr_ldo_reg>;
@@ -54,6 +63,18 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&proximity_pins>;
 		};
+	};
+
+	/* needed by Little Kernel */
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+	};
+
+	/* needed by Little Kernel */
+	scp {
+		compatible = "mediatek,scp";
 	};
 };
 
