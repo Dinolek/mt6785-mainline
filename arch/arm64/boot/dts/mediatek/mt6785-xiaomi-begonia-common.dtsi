@@ -179,6 +179,31 @@
 	};
 };
 
+&i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins>;
+
+	status = "okay";
+
+	magnetometer@c {
+		compatible = "asahi-kasei,ak09918";
+		reg = <0x0c>;
+
+		vdd-supply = <&mt6359_vio18_ldo_reg>;
+	};
+
+	proximity@47 {
+		compatible = "sensortek,stk3310";
+		reg = <0x47>;
+
+		interrupts-extended = <&pio 6 IRQ_TYPE_EDGE_FALLING>;
+		proximity-near-level = <70>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&proximity_pins>;
+	};
+};
+
 &i2c5 {
 	clock-frequency = <3400000>;
 
@@ -442,11 +467,27 @@
 		};
 	};
 
+	i2c1_pins: i2c1-pins {
+		pins-bus {
+			pinmux = <PINMUX_GPIO61__FUNC_SCL1>,
+				 <PINMUX_GPIO62__FUNC_SDA1>;
+			bias-pull-up;
+		};
+	};
+
 	i2c5_pins: i2c5-pins {
 		pins-bus {
 			pinmux = <PINMUX_GPIO28__FUNC_SCL5>,
 				 <PINMUX_GPIO29__FUNC_SDA5>;
 			bias-pull-up;
+		};
+	};
+
+	imu_pins: imu-pins {
+		pins-interrupt {
+			pinmux = <PINMUX_GPIO10__FUNC_GPIO10>;
+			bias-pull-down = <MTK_PUPD_SET_R1R0_00>;
+			input-enable;
 		};
 	};
 
@@ -489,6 +530,24 @@
 	panel_pins: panel-pins {
 		pins-reset {
 			pinmux = <PINMUX_GPIO44__FUNC_GPIO44>;
+		};
+	};
+
+	proximity_pins: proximity-pins {
+		pins-interrupt {
+			pinmux = <PINMUX_GPIO6__FUNC_GPIO6>;
+			bias-pull-up;
+			input-enable;
+		};
+	};
+
+	spi2_pins: spi2-pins {
+		pins-bus {
+			pinmux = <PINMUX_GPIO63__FUNC_SPI2_MI>,
+				 <PINMUX_GPIO64__FUNC_SPI2_CSB>,
+				 <PINMUX_GPIO65__FUNC_SPI2_MO>,
+				 <PINMUX_GPIO66__FUNC_SPI2_CLK>;
+			bias-disable;
 		};
 	};
 
@@ -559,6 +618,36 @@
 			linux,keycodes = <KEY_POWER>;
 			wakeup-source;
 		};
+	};
+};
+
+&spi2 {
+	mediatek,pad-select = <0>;
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi2_pins>;
+
+	status = "okay";
+
+	imu@0 {
+		compatible = "bosch,bmi120";
+		reg = <0>;
+
+		interrupts-extended = <&pio 10 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "INT1";
+
+		spi-cs-setup-delay-ns = <1000000>;
+		spi-max-frequency = <10000000>;
+
+		vdd-supply = <&mt6359_vio18_ldo_reg>;
+		vddio-supply = <&mt6359_vio18_ldo_reg>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&imu_pins>;
+
+		mount-matrix = "0", "1", "0",
+			       "-1", "0", "0",
+			       "0", "0", "1";
 	};
 };
 
