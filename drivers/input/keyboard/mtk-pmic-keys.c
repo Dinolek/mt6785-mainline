@@ -371,7 +371,8 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
 		if (keys->keys[index].irq < 0)
 			return keys->keys[index].irq;
 
-		if (of_device_is_compatible(node, "mediatek,mt6358-keys")) {
+		if (of_device_is_compatible(node, "mediatek,mt6358-keys") ||
+		    of_device_is_compatible(node, "mediatek,mt6359-keys")) {
 			keys->keys[index].irq_r = platform_get_irq_byname(pdev,
 									  irqnames_r[index]);
 
