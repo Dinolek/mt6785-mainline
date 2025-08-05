@@ -66,6 +66,10 @@ static int mt6360_tcpc_init(struct tcpci *tcpci, struct tcpci_data *tdata)
 	if (ret)
 		return ret;
 
+	ret = mt6360_tcpc_write16(regmap, TCPC_ALERT, 0xffff);
+	if (ret)
+		return ret;
+
 	/* config I2C timeout reset enable , and timeout to 200ms */
 	ret = regmap_write(regmap, MT6360_REG_I2CTORST, 0x8F);
 	if (ret)
@@ -168,6 +172,18 @@ static int mt6360_tcpc_probe(struct platform_device *pdev)
 					dev_name(&pdev->dev), mti);
 	if (ret) {
 		dev_err(mti->dev, "Failed to register irq\n");
+		tcpci_unregister_port(mti->tcpci);
+		return ret;
+	}
+
+	const u16 alert_mask = TCPC_ALERT_TX_SUCCESS | TCPC_ALERT_TX_DISCARDED |
+			       TCPC_ALERT_TX_FAILED | TCPC_ALERT_RX_HARD_RST |
+			       TCPC_ALERT_RX_STATUS | TCPC_ALERT_POWER_STATUS |
+			       TCPC_ALERT_CC_STATUS;
+
+	ret = mt6360_tcpc_write16(mti->tdata.regmap, TCPC_ALERT_MASK, alert_mask);
+	if (ret) {
+		dev_err(mti->dev, "Failed to set alert mask\n");
 		tcpci_unregister_port(mti->tcpci);
 		return ret;
 	}
