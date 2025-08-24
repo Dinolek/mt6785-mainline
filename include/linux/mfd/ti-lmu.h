@@ -21,8 +21,6 @@
 enum ti_lmu_id {
 	LM3631,
 	LM3632,
-	LM3633,
-	LM3695,
 	LM36274,
 	LMU_MAX_ID,
 };
