@@ -70,48 +70,12 @@ static const struct mfd_cell lm3631_devices[] = {
 	LM363X_REGULATOR(LM3631_LDO_OREF),
 	LM363X_REGULATOR(LM3631_LDO_POS),
 	LM363X_REGULATOR(LM3631_LDO_NEG),
-	{
-		.name          = "ti-lmu-backlight",
-		.id            = LM3631,
-		.of_compatible = "ti,lm3631-backlight",
-	},
 };
 
 static const struct mfd_cell lm3632_devices[] = {
 	LM363X_REGULATOR(LM3632_BOOST),
 	LM363X_REGULATOR(LM3632_LDO_POS),
 	LM363X_REGULATOR(LM3632_LDO_NEG),
-	{
-		.name          = "ti-lmu-backlight",
-		.id            = LM3632,
-		.of_compatible = "ti,lm3632-backlight",
-	},
-};
-
-static const struct mfd_cell lm3633_devices[] = {
-	{
-		.name          = "ti-lmu-backlight",
-		.id            = LM3633,
-		.of_compatible = "ti,lm3633-backlight",
-	},
-	{
-		.name          = "lm3633-leds",
-		.of_compatible = "ti,lm3633-leds",
-	},
-	/* Monitoring driver for open/short circuit detection */
-	{
-		.name          = "ti-lmu-fault-monitor",
-		.id            = LM3633,
-		.of_compatible = "ti,lm3633-fault-monitor",
-	},
-};
-
-static const struct mfd_cell lm3695_devices[] = {
-	{
-		.name          = "ti-lmu-backlight",
-		.id            = LM3695,
-		.of_compatible = "ti,lm3695-backlight",
-	},
 };
 
 static const struct mfd_cell lm36274_devices[] = {
@@ -135,8 +99,6 @@ static const struct ti_lmu_data chip##_data =	\
 
 TI_LMU_DATA(lm3631, LM3631_MAX_REG);
 TI_LMU_DATA(lm3632, LM3632_MAX_REG);
-TI_LMU_DATA(lm3633, LM3633_MAX_REG);
-TI_LMU_DATA(lm3695, LM3695_MAX_REG);
 TI_LMU_DATA(lm36274, LM36274_MAX_REG);
 
 static int ti_lmu_probe(struct i2c_client *cl)
@@ -205,8 +167,6 @@ static int ti_lmu_probe(struct i2c_client *cl)
 static const struct of_device_id ti_lmu_of_match[] = {
 	{ .compatible = "ti,lm3631", .data = &lm3631_data },
 	{ .compatible = "ti,lm3632", .data = &lm3632_data },
-	{ .compatible = "ti,lm3633", .data = &lm3633_data },
-	{ .compatible = "ti,lm3695", .data = &lm3695_data },
 	{ .compatible = "ti,lm36274", .data = &lm36274_data },
 	{ }
 };
@@ -215,8 +175,6 @@ MODULE_DEVICE_TABLE(of, ti_lmu_of_match);
 static const struct i2c_device_id ti_lmu_ids[] = {
 	{ "lm3631", LM3631 },
 	{ "lm3632", LM3632 },
-	{ "lm3633", LM3633 },
-	{ "lm3695", LM3695 },
 	{ "lm36274", LM36274 },
 	{ }
 };
