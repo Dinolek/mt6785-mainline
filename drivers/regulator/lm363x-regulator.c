@@ -43,6 +43,12 @@
 #define LM363X_STEP_50mV		50000
 #define LM363X_STEP_500mV		500000
 
+struct lm363x_chip_data {
+	const struct regulator_desc *regulators;
+	int n_regulators;
+	int ext_en_mask;
+};
+
 static const int ldo_cont_enable_time[] = {
 	0, 2000, 5000, 10000, 20000, 50000, 100000, 200000,
 };
@@ -100,8 +106,7 @@ static const struct regulator_ops lm363x_regulator_voltage_table_ops = {
 	.enable_time      = lm363x_regulator_enable_time,
 };
 
-static const struct regulator_desc lm363x_regulator_desc[] = {
-	/* LM3631 */
+static const struct regulator_desc lm3631_regulator_desc[] = {
 	{
 		.name           = "vboost",
 		.of_match	= "vboost",
@@ -175,7 +180,9 @@ static const struct regulator_desc lm363x_regulator_desc[] = {
 		.enable_reg     = LM3631_REG_LDO_CTRL1,
 		.enable_mask    = LM3631_EN_VNEG_MASK,
 	},
-	/* LM3632 */
+};
+
+static const struct regulator_desc lm3632_regulator_desc[] = {
 	{
 		.name           = "vboost",
 		.of_match	= "vboost",
@@ -219,8 +226,9 @@ static const struct regulator_desc lm363x_regulator_desc[] = {
 		.enable_reg     = LM3632_REG_BIAS_CONFIG,
 		.enable_mask    = LM3632_EN_VNEG_MASK,
 	},
+};
 
-	/* LM36274 */
+static const struct regulator_desc lm36274_regulator_desc[] = {
 	{
 		.name           = "vboost",
 		.of_match	= "vboost",
@@ -288,74 +296,101 @@ static struct gpio_desc *lm363x_regulator_of_get_enable_gpio(struct device *dev,
 	}
 }
 
-static int lm363x_regulator_set_ext_en(struct regmap *regmap, int id)
+static int lm363x_regulator_set_ext_en(struct ti_lmu *lmu,
+				       const struct regulator_desc *desc,
+				       const struct lm363x_chip_data *info)
 {
-	int ext_en_mask = 0;
+	if (!info->ext_en_mask)
+		return 0;
 
-	switch (id) {
-	case LM3632_LDO_POS:
-	case LM3632_LDO_NEG:
-		ext_en_mask = LM3632_EXT_EN_MASK;
-		break;
-	case LM36274_LDO_POS:
-	case LM36274_LDO_NEG:
-		ext_en_mask = LM36274_EXT_EN_MASK;
-		break;
-	default:
-		return -ENODEV;
-	}
-
-	return regmap_update_bits(regmap, lm363x_regulator_desc[id].enable_reg,
-				 ext_en_mask, ext_en_mask);
+	return regmap_update_bits(lmu->regmap, desc->enable_reg,
+				  info->ext_en_mask, info->ext_en_mask);
 }
 
 static int lm363x_regulator_probe(struct platform_device *pdev)
 {
 	struct ti_lmu *lmu = dev_get_drvdata(pdev->dev.parent);
-	struct regmap *regmap = lmu->regmap;
-	struct regulator_config cfg = { };
-	struct regulator_dev *rdev;
 	struct device *dev = &pdev->dev;
-	int id = pdev->id;
-	struct gpio_desc *gpiod;
-	int ret;
+	const struct lm363x_chip_data *info;
+	int i;
 
-	cfg.dev = dev;
-	cfg.regmap = regmap;
+	info = of_device_get_match_data(dev);
+	if (!info) {
+		dev_err(dev, "Unsupported device\n");
+		return -ENODEV;
+	}
 
-	/*
-	 * LM3632 LDOs can be controlled by external pin.
-	 * Register update is required if the pin is used.
-	 */
-	gpiod = lm363x_regulator_of_get_enable_gpio(dev, id);
-	if (IS_ERR(gpiod))
-		return PTR_ERR(gpiod);
+	for (i = 0; i < info->n_regulators; i++) {
+		const struct regulator_desc *desc = &info->regulators[i];
+		struct regulator_config cfg = {};
+		struct regulator_dev *rdev;
+		struct gpio_desc *gpiod;
+		int ret;
 
-	if (gpiod) {
-		cfg.ena_gpiod = gpiod;
-		ret = lm363x_regulator_set_ext_en(regmap, id);
-		if (ret) {
-			gpiod_put(gpiod);
-			dev_err(dev, "External pin err: %d\n", ret);
+		cfg.dev = dev;
+		cfg.regmap = lmu->regmap;
+
+		/*
+		 * LM3632/LM36274 LDOs can be controlled by external pin.
+		 * Register update is required if the pin is used.
+		 */
+		gpiod = lm363x_regulator_of_get_enable_gpio(dev, desc->id);
+		if (IS_ERR(gpiod))
+			return PTR_ERR(gpiod);
+
+		if (gpiod) {
+			cfg.ena_gpiod = gpiod;
+			ret = lm363x_regulator_set_ext_en(lmu, desc, info);
+			if (ret) {
+				gpiod_put(gpiod);
+				dev_err(dev, "External pin err: %d\n", ret);
+				return ret;
+			}
+		}
+
+		rdev = devm_regulator_register(dev, desc, &cfg);
+		if (IS_ERR(rdev)) {
+			ret = PTR_ERR(rdev);
+			dev_err(dev, "[%d] regulator register err: %d\n",
+				desc->id, ret);
 			return ret;
 		}
 	}
 
-	rdev = devm_regulator_register(dev, &lm363x_regulator_desc[id], &cfg);
-	if (IS_ERR(rdev)) {
-		ret = PTR_ERR(rdev);
-		dev_err(dev, "[%d] regulator register err: %d\n", id, ret);
-		return ret;
-	}
-
 	return 0;
 }
+
+static const struct lm363x_chip_data lm3631_data = {
+	.regulators = lm3631_regulator_desc,
+	.n_regulators = ARRAY_SIZE(lm3631_regulator_desc),
+};
+
+static const struct lm363x_chip_data lm3632_data = {
+	.regulators = lm3632_regulator_desc,
+	.n_regulators = ARRAY_SIZE(lm3632_regulator_desc),
+	.ext_en_mask = LM3632_EXT_EN_MASK,
+};
+
+static const struct lm363x_chip_data lm36274_data = {
+	.regulators = lm36274_regulator_desc,
+	.n_regulators = ARRAY_SIZE(lm36274_regulator_desc),
+	.ext_en_mask = LM36274_EXT_EN_MASK,
+};
+
+static const struct of_device_id of_lm363x_regulator_match[] = {
+	{ .compatible = "ti,lm3631-regulator", .data = &lm3631_data },
+	{ .compatible = "ti,lm3632-regulator", .data = &lm3632_data },
+	{ .compatible = "ti,lm36274-regulator", .data = &lm36274_data },
+	{ /* sentinel */ }
+};
+MODULE_DEVICE_TABLE(of, of_lm363x_regulator_match);
 
 static struct platform_driver lm363x_regulator_driver = {
 	.probe = lm363x_regulator_probe,
 	.driver = {
 		.name = "lm363x-regulator",
 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+		.of_match_table = of_lm363x_regulator_match,
 	},
 };
 
