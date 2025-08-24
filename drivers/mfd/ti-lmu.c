@@ -57,35 +57,28 @@ static void ti_lmu_disable_hw(void *data)
 		gpiod_set_value(lmu->en_gpio, 0);
 }
 
-#define LM363X_REGULATOR(_id)			\
-{						\
-	.name          = "lm363x-regulator",	\
-	.id            = _id,			\
-	.of_compatible = "ti,lm363x-regulator",	\
-}						\
-
 static const struct mfd_cell lm3631_devices[] = {
-	LM363X_REGULATOR(LM3631_BOOST),
-	LM363X_REGULATOR(LM3631_LDO_CONT),
-	LM363X_REGULATOR(LM3631_LDO_OREF),
-	LM363X_REGULATOR(LM3631_LDO_POS),
-	LM363X_REGULATOR(LM3631_LDO_NEG),
+	{
+		.name          = "lm363x-regulator",
+		.of_compatible = "ti,lm3631-regulator",
+	},
 };
 
 static const struct mfd_cell lm3632_devices[] = {
-	LM363X_REGULATOR(LM3632_BOOST),
-	LM363X_REGULATOR(LM3632_LDO_POS),
-	LM363X_REGULATOR(LM3632_LDO_NEG),
+	{
+		.name          = "lm363x-regulator",
+		.of_compatible = "ti,lm3632-regulator",
+	},
 };
 
 static const struct mfd_cell lm36274_devices[] = {
-	LM363X_REGULATOR(LM36274_BOOST),
-	LM363X_REGULATOR(LM36274_LDO_POS),
-	LM363X_REGULATOR(LM36274_LDO_NEG),
 	{
 		.name          = "lm36274-backlight",
-		.id            = LM36274,
 		.of_compatible = "ti,lm36274-backlight",
+	},
+	{
+		.name          = "lm363x-regulator",
+		.of_compatible = "ti,lm36274-regulator",
 	},
 };
 
@@ -160,7 +153,7 @@ static int ti_lmu_probe(struct i2c_client *cl)
 
 	i2c_set_clientdata(cl, lmu);
 
-	return devm_mfd_add_devices(lmu->dev, 0, data->cells,
+	return devm_mfd_add_devices(lmu->dev, PLATFORM_DEVID_AUTO, data->cells,
 				    data->num_cells, NULL, 0, NULL);
 }
 
