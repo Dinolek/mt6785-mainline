@@ -19,6 +19,13 @@
 			compatible = "mediatek,mt6359-codec";
 		};
 
+		mt6359_gauge: fuel-gauge {
+			compatible = "mediatek,mt6359-gauge";
+			nvmem-cells = <&fg_init>, <&fg_soc>;
+			nvmem-cell-names = "initialization", "state-of-charge";
+			status = "disabled";
+		};
+
 		regulators {
 			compatible = "mediatek,mt6359-regulator";
 
@@ -302,6 +309,17 @@
 
 		mt6359rtc: rtc {
 			compatible = "mediatek,mt6358-rtc";
+
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			fg_init: fg-init {
+				reg = <0 0x1>;
+			};
+
+			fg_soc: fg-soc {
+				reg = <1 0x1>;
+			};
 		};
 	};
 };
