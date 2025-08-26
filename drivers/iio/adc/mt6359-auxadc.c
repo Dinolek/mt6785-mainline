@@ -155,7 +155,7 @@ struct mtk_pmic_auxadc_info {
 		.endianness = IIO_CPU						\
 	},									\
 	.indexed = 1,								\
-	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) | BIT(IIO_CHAN_INFO_SCALE)	\
+	.info_mask_separate = BIT(IIO_CHAN_INFO_PROCESSED),			\
 }
 
 static const struct iio_chan_spec mt6357_auxadc_channels[] = {
@@ -492,17 +492,6 @@ static int mt6359_auxadc_read_raw(struct iio_dev *indio_dev,
 	const struct mtk_pmic_auxadc_chan *desc = &cinfo->desc[chan->scan_index];
 	int ret;
 
-	if (mask == IIO_CHAN_INFO_SCALE) {
-		*val = desc->r_ratio.numerator * AUXADC_VOLT_FULL;
-
-		if (desc->r_ratio.denominator > 1) {
-			*val2 = desc->r_ratio.denominator;
-			return IIO_VAL_FRACTIONAL;
-		}
-
-		return IIO_VAL_INT;
-	}
-
 	scoped_guard(mutex, &adc_dev->lock) {
 		switch (chan->scan_index) {
 		case PMIC_AUXADC_CHAN_IBAT:
@@ -534,6 +523,14 @@ static int mt6359_auxadc_read_raw(struct iio_dev *indio_dev,
 		return ret;
 	}
 	adc_dev->timed_out = false;
+
+	if (mask == IIO_CHAN_INFO_PROCESSED) {
+		*val *= desc->r_ratio.numerator * AUXADC_VOLT_FULL;
+		if (desc->r_ratio.denominator > 1) {
+			*val /= desc->r_ratio.denominator;
+		}
+		*val >>= chan->scan_type.realbits;
+	}
 
 	return IIO_VAL_INT;
 }
