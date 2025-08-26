@@ -2795,19 +2795,8 @@ static int ptim_battery_voltage_get(struct mtk_gauge *gauge,
 static int ptim_resist_get(struct mtk_gauge *gauge,
 	struct mtk_gauge_sysfs_field_info *attr, int *val)
 {
-	int ret;
-
-	if (!IS_ERR(gauge->chan_ptim_r)) {
-		ret = iio_read_channel_processed(
-			gauge->chan_ptim_r, val);
-		if (ret < 0)
-			bm_err(gauge->gm, "[%s]read fail,ret=%d\n", __func__, ret);
-	} else {
-		bm_err(gauge->gm, "[%s]chan error\n", __func__);
-		ret = -ENOTSUPP;
-	}
-
-	return ret;
+	*val = 0;
+	return 0;
 }
 
 static int bat_temp_froze_en_set(struct mtk_gauge *gauge,
@@ -3837,14 +3826,6 @@ static int mt6359_gauge_probe(struct platform_device *pdev)
 	if (IS_ERR(gauge->chan_ptim_bat_voltage)) {
 		ret = PTR_ERR(gauge->chan_ptim_bat_voltage);
 		dev_err(&pdev->dev, "chan_ptim_bat_voltage auxadc get fail, ret=%d\n",
-			ret);
-	}
-
-	gauge->chan_ptim_r = devm_iio_channel_get(
-		&pdev->dev, "pmic_ptim_r");
-	if (IS_ERR(gauge->chan_ptim_r)) {
-		ret = PTR_ERR(gauge->chan_ptim_r);
-		dev_err(&pdev->dev, "chan_ptim_r auxadc get fail, ret=%d\n",
 			ret);
 	}
 

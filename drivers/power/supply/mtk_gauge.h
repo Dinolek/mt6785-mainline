@@ -263,7 +263,6 @@ struct mtk_gauge {
 	struct iio_channel *chan_bat_voltage;
 	struct iio_channel *chan_bif;
 	struct iio_channel *chan_ptim_bat_voltage;
-	struct iio_channel *chan_ptim_r;
 
 	struct mtk_gauge_sysfs_field_info *attr;
 	struct zcv_data zcv_info;
