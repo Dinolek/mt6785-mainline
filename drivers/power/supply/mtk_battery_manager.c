@@ -522,7 +522,7 @@ static int bm_shutdown_event_handler(struct mtk_battery_manager *bm)
 
 }
 
-static enum alarmtimer_restart power_misc_kthread_bm_timer_func(
+static void power_misc_kthread_bm_timer_func(
 	struct alarm *alarm, ktime_t now)
 {
 	struct shutdown_controller *info =
@@ -534,10 +534,9 @@ static enum alarmtimer_restart power_misc_kthread_bm_timer_func(
 	info->timeout |= 0x1 << BATTERY_MANAGER;
 	spin_unlock_irqrestore(&info->slock, flags);
 	wake_up_power_misc(info);
-	return ALARMTIMER_NORESTART;
 }
 
-static enum alarmtimer_restart power_misc_kthread_gm2_timer_func(
+static void power_misc_kthread_gm2_timer_func(
 	struct alarm *alarm, ktime_t now)
 {
 	struct shutdown_controller *info =
@@ -549,10 +548,9 @@ static enum alarmtimer_restart power_misc_kthread_gm2_timer_func(
 	info->timeout |= 0x1 << BATTERY_SLAVE;
 	spin_unlock_irqrestore(&info->slock, flags);
 	wake_up_power_misc(info);
-	return ALARMTIMER_NORESTART;
 }
 
-static enum alarmtimer_restart power_misc_kthread_gm1_timer_func(
+static void power_misc_kthread_gm1_timer_func(
 	struct alarm *alarm, ktime_t now)
 {
 	struct shutdown_controller *info =
@@ -564,7 +562,6 @@ static enum alarmtimer_restart power_misc_kthread_gm1_timer_func(
 	info->timeout |= 0x1 << BATTERY_MAIN;
 	spin_unlock_irqrestore(&info->slock, flags);
 	wake_up_power_misc(info);
-	return ALARMTIMER_NORESTART;
 }
 
 
@@ -873,8 +870,8 @@ void battery_manager_thread_hrtimer_init(struct mtk_battery_manager *bm)
 	ktime_t ktime;
 
 	ktime = ktime_set(10, 0);
-	hrtimer_init(&bm->bm_hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-	bm->bm_hrtimer.function = battery_manager_thread_hrtimer_func;
+	hrtimer_setup(&bm->bm_hrtimer, battery_manager_thread_hrtimer_func,
+		      CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	hrtimer_start(&bm->bm_hrtimer, ktime, HRTIMER_MODE_REL);
 }
 #endif
@@ -1718,7 +1715,7 @@ void mtk_bm_netlink_handler(struct sk_buff *skb)
 	size = fgd_msg->ret_data_len + AFW_MSG_HEADER_LEN;
 
 	if (size > (PAGE_SIZE << 1))
-		fgd_ret_msg = vmalloc(size);
+		fgd_ret_msg = kvmalloc(size, GFP_KERNEL);
 	else {
 		if (in_interrupt())
 			fgd_ret_msg = kmalloc(size, GFP_ATOMIC);
@@ -1728,7 +1725,7 @@ void mtk_bm_netlink_handler(struct sk_buff *skb)
 
 	if (fgd_ret_msg == NULL) {
 		if (size > PAGE_SIZE)
-			fgd_ret_msg = vmalloc(size);
+			fgd_ret_msg = kvmalloc(size, GFP_KERNEL);
 
 		if (fgd_ret_msg == NULL)
 			return;
@@ -1922,11 +1919,6 @@ static int mtk_bm_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static int mtk_bm_remove(struct platform_device *pdev)
-{
-	return 0;
-}
-
 static void mtk_bm_shutdown(struct platform_device *pdev)
 {
 }
@@ -1944,14 +1936,13 @@ static int __maybe_unused mtk_bm_resume(struct device *dev)
 static SIMPLE_DEV_PM_OPS(mtk_bm_pm_ops, mtk_bm_suspend, mtk_bm_resume);
 
 static const struct of_device_id __maybe_unused mtk_bm_of_match[] = {
-	{ .compatible = "mediatek,battery manager", },
+	{ .compatible = "mediatek,battery-manager", },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, mtk_bm_of_match);
 
 static struct platform_driver mtk_battery_manager_driver = {
 	.probe = mtk_bm_probe,
-	.remove = mtk_bm_remove,
 	.shutdown = mtk_bm_shutdown,
 	.driver = {
 		.name = "mtk_battery_manager",

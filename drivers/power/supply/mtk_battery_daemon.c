@@ -5429,7 +5429,7 @@ int wakeup_fg_daemon(struct mtk_battery *gm, unsigned int flow_state, int cmd, i
 	int size = AFW_MSG_HEADER_LEN + sizeof(flow_state);
 
 	if (size > (PAGE_SIZE << 1))
-		fgd_msg = vmalloc(size);
+		fgd_msg = kvmalloc(size, GFP_KERNEL);
 	else {
 		if (in_interrupt())
 			fgd_msg = kmalloc(size, GFP_ATOMIC);
@@ -5439,7 +5439,7 @@ int wakeup_fg_daemon(struct mtk_battery *gm, unsigned int flow_state, int cmd, i
 
 	if (fgd_msg == NULL) {
 		if (size > PAGE_SIZE)
-			fgd_msg = vmalloc(size);
+			fgd_msg = kvmalloc(size, GFP_KERNEL);
 
 		if (fgd_msg == NULL)
 			return -1;
