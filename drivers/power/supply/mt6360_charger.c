@@ -776,6 +776,10 @@ static int mt6360_chg_init_setting(struct mt6360_chg_info *mci)
 	return 0;
 }
 
+static char *mt6360_charger_supplied_to[] = {
+	"battery",
+};
+
 static int mt6360_charger_probe(struct platform_device *pdev)
 {
 	struct mt6360_chg_info *mci;
@@ -811,6 +815,8 @@ static int mt6360_charger_probe(struct platform_device *pdev)
 	mci->psy_desc.name = dev_name(&pdev->dev);
 	charger_cfg.drv_data = mci;
 	charger_cfg.fwnode = dev_fwnode(&pdev->dev);
+	charger_cfg.supplied_to = mt6360_charger_supplied_to;
+	charger_cfg.num_supplicants = ARRAY_SIZE(mt6360_charger_supplied_to);
 	mci->psy = devm_power_supply_register(&pdev->dev,
 					      &mci->psy_desc, &charger_cfg);
 	if (IS_ERR(mci->psy))
