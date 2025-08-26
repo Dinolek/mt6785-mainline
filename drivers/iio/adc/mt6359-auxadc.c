@@ -473,7 +473,7 @@ static int mt6359_auxadc_read_adc(struct mt6359_auxadc *adc_dev,
 	/* Stop sampling */
 	regmap_write(regmap, cinfo->regs[desc->req_idx], 0);
 
-	*out = val & GENMASK(chan->scan_type.realbits - 1, 0);
+	*out = val;
 	return 0;
 }
 
@@ -516,6 +516,8 @@ static int mt6359_auxadc_read_raw(struct iio_dev *indio_dev,
 			break;
 		}
 	}
+
+	*val &= GENMASK(chan->scan_type.realbits - 1, 0);
 
 	if (ret) {
 		/*
