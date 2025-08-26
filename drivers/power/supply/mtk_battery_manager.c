@@ -1282,21 +1282,11 @@ static int bs_psy_get_property(struct power_supply *psy,
 
 		break;
 	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE:
-		if (IS_ERR_OR_NULL(bs_data->chg_psy)) {
-			bs_data->chg_psy = devm_power_supply_get_by_phandle(
-				bm->dev, "charger");
-			pr_err("%s retry to get chg_psy\n", __func__);
-		}
-		if (IS_ERR_OR_NULL(bs_data->chg_psy)) {
-			pr_err("%s Couldn't get chg_psy\n", __func__);
+		ret = power_supply_get_property_from_supplier(psy,
+			POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE, val);
+		if (ret < 0) {
+			pr_err("get CV property fail\n");
 			ret = 4350;
-		} else {
-			ret = power_supply_get_property(bs_data->chg_psy,
-				POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE, val);
-			if (ret < 0) {
-				pr_err("get CV property fail\n");
-				ret = 4350;
-			}
 		}
 		break;
 
@@ -1342,14 +1332,10 @@ static void mtk_battery_external_power_changed(struct power_supply *psy)
 	union power_supply_propval online = {0}, status = {0}, vbat0 = {0};
 	union power_supply_propval prop_type = {0};
 	int cur_chr_type = 0, old_vbat0 = 0;
-
-	struct power_supply *chg_psy = NULL;
-	struct power_supply *dv2_chg_psy = NULL;
 	int ret = 0;
 
 	bm = psy->drv_data;
 	bs_data = &bm->bs_data;
-	chg_psy = bs_data->chg_psy;
 
 	if (bm->gm1->is_probe_done == false) {
 		pr_err("[%s] gm_no:%d battery probe is not rdy:%d\n",
@@ -1365,86 +1351,66 @@ static void mtk_battery_external_power_changed(struct power_supply *psy)
 		}
 	}
 
-	if (IS_ERR_OR_NULL(chg_psy)) {
-		chg_psy = devm_power_supply_get_by_phandle(bm->dev,
-						       "charger");
-		pr_err("%s retry to get chg_psy\n", __func__);
-		bs_data->chg_psy = chg_psy;
+	ret |= power_supply_get_property_from_supplier(psy,
+		POWER_SUPPLY_PROP_ONLINE, &online);
+
+	ret |= power_supply_get_property_from_supplier(psy,
+		POWER_SUPPLY_PROP_STATUS, &status);
+
+	ret |= power_supply_get_property_from_supplier(psy,
+		POWER_SUPPLY_PROP_ENERGY_EMPTY, &vbat0);
+
+	if (ret < 0)
+		pr_debug("%s ret: %d\n", __func__, ret);
+
+	if (!online.intval) {
+		bs_data->bat_status = POWER_SUPPLY_STATUS_DISCHARGING;
 	} else {
-		ret |= power_supply_get_property(chg_psy,
-			POWER_SUPPLY_PROP_ONLINE, &online);
-
-		ret |= power_supply_get_property(chg_psy,
-			POWER_SUPPLY_PROP_STATUS, &status);
-
-		ret |= power_supply_get_property(chg_psy,
-			POWER_SUPPLY_PROP_ENERGY_EMPTY, &vbat0);
-
-		if (ret < 0)
-			pr_debug("%s ret: %d\n", __func__, ret);
-
-		if (!online.intval) {
-			bs_data->bat_status = POWER_SUPPLY_STATUS_DISCHARGING;
+		if (status.intval == POWER_SUPPLY_STATUS_NOT_CHARGING) {
+			bs_data->bat_status =
+				POWER_SUPPLY_STATUS_NOT_CHARGING;
 		} else {
-			if (status.intval == POWER_SUPPLY_STATUS_NOT_CHARGING) {
-				bs_data->bat_status =
-					POWER_SUPPLY_STATUS_NOT_CHARGING;
-
-				dv2_chg_psy = power_supply_get_by_name("mtk-mst-div-chg");
-				if (!IS_ERR_OR_NULL(dv2_chg_psy)) {
-					ret = power_supply_get_property(dv2_chg_psy,
-						POWER_SUPPLY_PROP_ONLINE, &online);
-					if (online.intval) {
-						bs_data->bat_status =
-							POWER_SUPPLY_STATUS_CHARGING;
-						status.intval =
-							POWER_SUPPLY_STATUS_CHARGING;
-					}
-					power_supply_put(dv2_chg_psy);
-				}
-			} else {
-				bs_data->bat_status =
-					POWER_SUPPLY_STATUS_CHARGING;
-			}
-			bm_send_cmd(bm, MANAGER_SW_BAT_CYCLE_ACCU, 0);
+			bs_data->bat_status =
+				POWER_SUPPLY_STATUS_CHARGING;
 		}
+		bm_send_cmd(bm, MANAGER_SW_BAT_CYCLE_ACCU, 0);
+	}
 
-		if (status.intval == POWER_SUPPLY_STATUS_FULL
-			&& bm->b_EOC != true) {
-			pr_err("POWER_SUPPLY_STATUS_FULL, EOC\n");
-			gauge_get_int_property(bm->gm1, GAUGE_PROP_BAT_EOC);
-			bm_send_cmd(bm, MANAGER_NOTIFY_CHR_FULL, 0);
-			pr_err("GAUGE_PROP_BAT_EOC done\n");
-			bm->b_EOC = true;
-		} else
-			bm->b_EOC = false;
+	if (status.intval == POWER_SUPPLY_STATUS_FULL
+		&& bm->b_EOC != true) {
+		pr_err("POWER_SUPPLY_STATUS_FULL, EOC\n");
+		gauge_get_int_property(bm->gm1, GAUGE_PROP_BAT_EOC);
+		bm_send_cmd(bm, MANAGER_NOTIFY_CHR_FULL, 0);
+		pr_err("GAUGE_PROP_BAT_EOC done\n");
+		bm->b_EOC = true;
+	} else
+		bm->b_EOC = false;
 
-		battery_update(bm);
+	battery_update(bm);
 
-		/* check charger type */
-		ret = power_supply_get_property(chg_psy,
-			POWER_SUPPLY_PROP_USB_TYPE, &prop_type);
+	/* check charger type */
+	ret = power_supply_get_property_from_supplier(psy,
+		POWER_SUPPLY_PROP_USB_TYPE, &prop_type);
 
-		/* plug in out */
-		cur_chr_type = prop_type.intval;
+	/* plug in out */
+	cur_chr_type = prop_type.intval;
 
-		if (cur_chr_type == POWER_SUPPLY_TYPE_UNKNOWN) {
-			if (bm->chr_type != POWER_SUPPLY_TYPE_UNKNOWN)
-				pr_err("%s chr plug out\n", __func__);
-		} else {
-			if (bm->chr_type == POWER_SUPPLY_TYPE_UNKNOWN)
-				bm_send_cmd(bm, MANAGER_WAKE_UP_ALGO, FG_INTR_CHARGER_IN);
-		}
+	if (cur_chr_type == POWER_SUPPLY_TYPE_UNKNOWN) {
+		if (bm->chr_type != POWER_SUPPLY_TYPE_UNKNOWN)
+			pr_err("%s chr plug out\n", __func__);
+	} else {
+		if (bm->chr_type == POWER_SUPPLY_TYPE_UNKNOWN)
+			bm_send_cmd(bm, MANAGER_WAKE_UP_ALGO, FG_INTR_CHARGER_IN);
+	}
 
-		if (bm->gm1->vbat0_flag != vbat0.intval) {
-			old_vbat0 = bm->gm1->vbat0_flag;
-			bm->gm1->vbat0_flag = vbat0.intval;
-			if (bm->gm_no == 2)
-				bm->gm2->vbat0_flag = vbat0.intval;
-			bm_send_cmd(bm, MANAGER_WAKE_UP_ALGO, FG_INTR_NAG_C_DLTV);
-			pr_err("fuelgauge NAFG for calibration,vbat0[o:%d n:%d]\n",
-				old_vbat0, vbat0.intval);
-		}
+	if (bm->gm1->vbat0_flag != vbat0.intval) {
+		old_vbat0 = bm->gm1->vbat0_flag;
+		bm->gm1->vbat0_flag = vbat0.intval;
+		if (bm->gm_no == 2)
+			bm->gm2->vbat0_flag = vbat0.intval;
+		bm_send_cmd(bm, MANAGER_WAKE_UP_ALGO, FG_INTR_NAG_C_DLTV);
+		pr_err("fuelgauge NAFG for calibration,vbat0[o:%d n:%d]\n",
+			old_vbat0, vbat0.intval);
 	}
 
 	pr_err("%s event, name:%s online:%d, status:%d, EOC:%d, cur_chr_type:%d old:%d, vbat0:[o:%d n:%d]\n",
@@ -1903,10 +1869,6 @@ static int mtk_bm_probe(struct platform_device *pdev)
 #endif
 
 	kthread_run(battery_manager_routine_thread, bm, "battery_manager_thread");
-
-	bm->bs_data.chg_psy = devm_power_supply_get_by_phandle(&pdev->dev, "charger");
-	if (IS_ERR_OR_NULL(bm->bs_data.chg_psy))
-		pr_err("[%s]Fail to get chg_psy!\n", __func__);
 
 	bm_battery_service_init(bm);
 	mtk_bm_create_netlink(pdev);
