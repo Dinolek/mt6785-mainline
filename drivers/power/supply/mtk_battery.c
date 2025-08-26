@@ -28,6 +28,7 @@
 #include <linux/wait.h>		/* For wait queue*/
 #include <net/sock.h>		/* netlink */
 #include <linux/suspend.h>
+#include <linux/iio/consumer.h>
 #include "mtk_battery.h"
 #include "mtk_battery_table.h"
 #if IS_ENABLED(CONFIG_MTK_AEE_FEATURE)
@@ -152,6 +153,44 @@ bool is_algo_active(struct mtk_battery *gm)
 
 int fgauge_get_profile_id(struct mtk_battery *gm)
 {
+	int auxadc_voltage = 0;
+	int ret = 0;
+
+	struct iio_channel *channel =
+		devm_iio_channel_get(&gm->gauge->pdev->dev, "bat_id");
+	if (IS_ERR(channel)) {
+		ret = PTR_ERR(channel);
+		bm_err(gm, "[%s] iio channel not found %d\n", __func__, ret);
+		return gm->battery_id;
+	}
+
+	ret = iio_read_channel_processed(channel, &auxadc_voltage);
+	if (ret <= 0) {
+		bm_err(gm, "[%s] iio_read_channel_processed failed\n",
+		       __func__);
+		return gm->battery_id;
+	}
+
+	bm_err(gm, "[%s]auxadc_voltage is %d\n", __func__, auxadc_voltage);
+
+	if (sizeof(g_battery_id_voltage) / sizeof(int) !=
+	    TOTAL_BATTERY_NUMBER) {
+		bm_debug(gm, "[%s]error! voltage range incorrect!\n", __func__);
+		return gm->battery_id;
+	}
+
+	for (int id = 0; id < TOTAL_BATTERY_NUMBER; id++) {
+		if (auxadc_voltage < g_battery_id_voltage[id]) {
+			gm->battery_id = id;
+			break;
+		}
+
+		if (g_battery_id_voltage[id] == -1) {
+			gm->battery_id = TOTAL_BATTERY_NUMBER - 1;
+		}
+	}
+
+	bm_debug(gm, "[%s]Battery id (%d)\n", __func__, gm->battery_id);
 	return gm->battery_id;
 }
 

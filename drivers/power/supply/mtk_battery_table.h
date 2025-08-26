@@ -88,10 +88,10 @@ int g_iavg_th[MAX_TABLE][TOTAL_BATTERY_NUMBER] = {
 	{ 1500, 1500, 1500, 1500},/*T8*/
 	{ 1500, 1500, 1500, 1500} /*T9*/
 };
-/* 0~0.5V for battery 0, 0.5~1V for battery 1*/
-/* 1~1.5V for battery 2, -1 for the last one (battery 3) */
+/* 0~0.9V for battery 0, 0.9~1.29V for battery 1*/
+/* 1.29~1.8V for battery 2, -1 for the last one (battery 3) */
 int g_battery_id_voltage[TOTAL_BATTERY_NUMBER] = {
-	500000, 1000000, 1500000, -1};
+	500, 1290, 1800, -1};
 
 int g_FG_PSEUDO1[MAX_TABLE][TOTAL_BATTERY_NUMBER] = {
 	/*bat1,   bat2,   bat3,    bat4*/
