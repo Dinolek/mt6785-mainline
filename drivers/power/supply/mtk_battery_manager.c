@@ -1867,7 +1867,7 @@ static int mtk_bm_probe(struct platform_device *pdev)
 
 	if (bm->gm1 == NULL && bm->gm2 == NULL) {
 		pr_err("[%s]disable gauge because can not find gm!\n", __func__);
-		return 0;
+		return -EPROBE_DEFER;
 	}
 
 
