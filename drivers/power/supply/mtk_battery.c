@@ -232,17 +232,6 @@ int wakeup_fg_algo(struct mtk_battery *gm, unsigned int flow_state)
 	return wakeup_fg_algo_cmd(gm, flow_state, 0, 0);
 }
 
-bool is_recovery_mode(struct mtk_battery *gm)
-{
-	bm_err(gm, "%s, bootmdoe = %d\n", __func__, gm->bootmode);
-
-	/* RECOVERY_BOOT */
-	if (gm->bootmode == 2)
-		return true;
-
-	return false;
-}
-
 /* select gm->charge_power_sel to CHARGE_NORMAL ,CHARGE_R1,CHARGE_R2 */
 /* example: gm->charge_power_sel = CHARGE_NORMAL */
 bool set_charge_power_sel(struct mtk_battery *gm, enum charge_sel select)
@@ -3286,7 +3275,6 @@ int fg_prop_control_init(struct mtk_battery *gm)
 int battery_init(struct platform_device *pdev)
 {
 	int ret = 0;
-	bool b_recovery_mode = 0;
 	struct mtk_battery *gm;
 	struct mtk_gauge *gauge;
 
@@ -3349,16 +3337,11 @@ int battery_init(struct platform_device *pdev)
 	//mtk_power_misc_init(gm);
 
 	ret = mtk_battery_daemon_init(pdev);
-	b_recovery_mode = is_recovery_mode(gm);
 	gm->is_probe_done = true;
 
-	if (ret == 0 && b_recovery_mode == 0)
-		bm_err(gm, "[%s]: daemon mode DONE\n", __func__);
-	else {
-		gm->algo.active = true;
-		battery_algo_init(gm);
-		bm_err(gm, "[%s]: enable Kernel mode Gauge\n", __func__);
-	}
+	gm->algo.active = true;
+	battery_algo_init(gm);
+	bm_err(gm, "[%s]: enable Kernel mode Gauge\n", __func__);
 
 	return 0;
 }
