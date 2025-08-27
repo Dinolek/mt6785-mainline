@@ -124,5 +124,5 @@ obj-$(CONFIG_CHARGER_QCOM_SMB2)	+= qcom_pmi8998_charger.o
 obj-$(CONFIG_FUEL_GAUGE_MM8013)	+= mm8013.o
 
 mtk-battery-manager-objs := mtk_battery_manager.o mtk_battery_interface.o
-mt6359p_battery-objs := mt6359p-gauge.o mtk_battery.o mtk_battery_algo.o mtk_battery_coulomb_service.o mtk_battery_daemon.o mtk_battery_interface.o
-obj-$(CONFIG_BATTERY_MT6359P) += mtk-battery-manager.o mt6359p_battery.o
+mt6359_battery-objs := mt6359-gauge.o mtk_battery.o mtk_battery_algo.o mtk_battery_coulomb_service.o mtk_battery_daemon.o mtk_battery_interface.o
+obj-$(CONFIG_BATTERY_MT6359) += mtk-battery-manager.o mt6359_battery.o

@@ -11,7 +11,7 @@
 #include <linux/irq.h>
 #include <linux/irqdesc.h>
 #include <linux/mfd/mt6397/core.h>
-#include <linux/mfd/mt6359p/registers.h>
+#include <linux/mfd/mt6359/registers.h>
 #include <linux/netlink.h>
 #include <linux/skbuff.h>
 #include <linux/socket.h>
@@ -3192,12 +3192,12 @@ static int reset_set(struct mtk_gauge *gauge,
 
 	bm_err(gauge->gm, "[fgauge_hw_reset]\n");
 	regmap_update_bits(gauge->regmap,
-		MT6359P_FGADC_CON1,
+		MT6359_FGADC_CON1,
 		0x0F00, 0x0630);
 	bm_err(gauge->gm, "[fgauge_hw_reset] reset fgadc car ret =%d\n", ret);
 	mdelay(1);
 	regmap_update_bits(gauge->regmap,
-		MT6359P_FGADC_CON1,
+		MT6359_FGADC_CON1,
 		0x0F00, 0x0030);
 	return 0;
 }
@@ -3874,17 +3874,16 @@ static int mt6359_gauge_probe(struct platform_device *pdev)
 }
 
 static const struct of_device_id mt6359_gauge_of_match[] = {
-	{.compatible = "mediatek,mt6359p-gauge",},
+	{.compatible = "mediatek,mt6359-gauge",},
 	{},
 };
 
-static int mt6359_gauge_remove(struct platform_device *pdev)
+static void mt6359_gauge_remove(struct platform_device *pdev)
 {
 	struct mtk_gauge *gauge = platform_get_drvdata(pdev);
 
 	if (gauge)
 		devm_kfree(&pdev->dev, gauge);
-	return 0;
 }
 
 MODULE_DEVICE_TABLE(of, mt6359_gauge_of_match);
@@ -3896,7 +3895,7 @@ static struct platform_driver mt6359_gauge_driver = {
 	.suspend = mt6359_gauge_suspend,
 	.resume = mt6359_gauge_resume,
 	.driver = {
-		.name = "mt6359p_gauge",
+		.name = "mt6359_gauge",
 		.of_match_table = mt6359_gauge_of_match,
 		},
 };
