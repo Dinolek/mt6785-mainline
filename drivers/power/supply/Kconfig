@@ -1074,4 +1074,13 @@ config FUEL_GAUGE_MM8013
 	  the state of charge, temperature, cycle count, actual and design
 	  capacity, etc.
 
+config BATTERY_MT6359P
+	tristate "MT6359P fuel gauge support"
+	depends on MFD_MT6397
+	help
+	  Say Y to enable support for MT6359P battery driver.
+	  it measure battery current and temperature to provide
+	  battery information. It issues interrupt when trigger
+	  threshold is met.
+
 endif # POWER_SUPPLY
