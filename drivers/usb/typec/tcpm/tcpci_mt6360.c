@@ -11,6 +11,7 @@
 #include <linux/of.h>
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
+#include <linux/regulator/consumer.h>
 #include <linux/usb/tcpci.h>
 #include <linux/usb/tcpm.h>
 
@@ -40,6 +41,7 @@ struct mt6360_tcpc_info {
 	struct tcpci_data tdata;
 	struct tcpci *tcpci;
 	struct device *dev;
+	struct regulator *vbus;
 	int irq;
 };
 
@@ -140,6 +142,26 @@ static irqreturn_t mt6360_irq(int irq, void *dev_id)
 	return tcpci_irq(mti->tcpci);
 }
 
+static int mt6360_tcpc_set_vbus(struct tcpci *tcpci, struct tcpci_data *data,
+				bool source, bool sink)
+{
+	struct mt6360_tcpc_info *mti =
+		container_of(data, struct mt6360_tcpc_info, tdata);
+	int ret;
+
+	ret = regulator_is_enabled(mti->vbus);
+	if (ret < 0)
+		return ret;
+
+	if (ret && !source)
+		return regulator_disable(mti->vbus);
+
+	if (!ret && source)
+		return regulator_enable(mti->vbus);
+
+	return 0;
+}
+
 static int mt6360_tcpc_probe(struct platform_device *pdev)
 {
 	struct mt6360_tcpc_info *mti;
@@ -160,6 +182,10 @@ static int mt6360_tcpc_probe(struct platform_device *pdev)
 	mti->irq = platform_get_irq_byname(pdev, "PD_IRQB");
 	if (mti->irq < 0)
 		return mti->irq;
+
+	mti->vbus = devm_regulator_get_optional(&pdev->dev, "vbus");
+	if (!IS_ERR(mti->vbus))
+		mti->tdata.set_vbus = mt6360_tcpc_set_vbus;
 
 	mti->tdata.init = mt6360_tcpc_init;
 	mti->tcpci = tcpci_register_port(&pdev->dev, &mti->tdata);
