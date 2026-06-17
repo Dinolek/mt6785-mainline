@@ -2,7 +2,8 @@
 dtb-$(CONFIG_ARCH_MEDIATEK) += mt2712-evb.dtb
 dtb-$(CONFIG_ARCH_MEDIATEK) += mt6755-evb.dtb
 dtb-$(CONFIG_ARCH_MEDIATEK) += mt6779-evb.dtb
-dtb-$(CONFIG_ARCH_MEDIATEK) += mt6785-xiaomi-begonia.dtb
+dtb-$(CONFIG_ARCH_MEDIATEK) += mt6785-xiaomi-begonia-csot.dtb
+dtb-$(CONFIG_ARCH_MEDIATEK) += mt6785-xiaomi-begonia-tianma.dtb
 dtb-$(CONFIG_ARCH_MEDIATEK) += mt6795-evb.dtb
 dtb-$(CONFIG_ARCH_MEDIATEK) += mt6795-sony-xperia-m5.dtb
 dtb-$(CONFIG_ARCH_MEDIATEK) += mt6797-evb.dtb
